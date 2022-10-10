@@ -1,0 +1,2 @@
+# if quality is not mp3 or aud, use the format link|qual
+# if quality is mp3, use the format link|qual|name|artist|album
