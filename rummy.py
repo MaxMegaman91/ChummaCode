@@ -23,3 +23,4 @@ def sortcards():
 
 def rummycheckad():
     while i < 13:
+        return 1
