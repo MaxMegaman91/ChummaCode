@@ -1,9 +1,10 @@
 #########################################################################################################################
-import RealDailyCode.substring as substring, RealDailyCode.minesweeper1 as minesweeper1, RealDailyCode.sudoku as sudoku, RealDailyCode.josephus as josephus, RealDailyCode.ecg as ecg, combinations, RealDailyCode.PatternedWristband as wrist
-from RealDailyCode.MaxieMinnie import maxmin
-from RealDailyCode.fiscal import fiscalCode
-from RealDailyCode.exactly3 import is_exactly_three
-from RealDailyCode.secretagentpassword import secret_password
+import substring, minesweeper1, sudoku, josephus, ecg, combinations, PatternedWristband as wrist
+from MaxieMinnie import maxmin
+from fiscal import fiscalCode
+from exactly3 import is_exactly_three
+from secretagentpassword import secret_password
+from atbash import atbash
 
 def assert_equals(x,y,*args):
     if x == y:
@@ -324,5 +325,15 @@ assert_equals(secret_password("iloveherh"), "hevfsi9l15")
 assert_equals(secret_password("airforcess"), "BANG! BANG! BANG!")
 assert_equals(secret_password("edabit"), "BANG! BANG! BANG!")
 '''
+
+# atbash below --> Working
+'''
+assert_equals(atbash("abcdefghijklmnopqrstuvwxyz"), "zyxwvutsrqponmlkjihgfedcba")
+assert_equals(atbash("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), "ZYXWVUTSRQPONMLKJIHGFEDCBA")
+assert_equals(atbash("The word 'atbash' derives from the the first and last 2 letters of the Hebrew alphabet."), "Gsv dliw 'zgyzhs' wvirevh uiln gsv gsv urihg zmw ozhg 2 ovggvih lu gsv Svyivd zokszyvg.")
+assert_equals(atbash("Vmxibkgrlm zmw wvxibkgrlm ziv rwvmgrxzo uli gsv Zgyzhs xrksvi."),"Encryption and decryption are identical for the Atbash cipher.")
+'''
+
+
 
 #########################################################################################################################
