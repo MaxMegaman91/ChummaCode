@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>2048</title>
+</head>
+<style>
+  body {
+    overflow : hidden;
+  }
+  .columnColor0,.columnColor2 {
+    background-color:rgb(190, 190, 190);
+    font-size: 30px;
+  }
+  .columnColor4 {
+    background-color: rgb(255, 219, 118);
+    font-size: 30px
+  }
+  .columnColor8 {
+    background-color:lightsalmon;
+    font-size: 30px;
+  }
+  .columnColor16 {
+    background-color:rgb(212, 110, 69);
+    font-size: 30px;
+  }
+  .columnColor32 {
+    background-color:rgb(238, 74, 9);
+    font-size: 30px;
+  }
+  .columnColor64 {
+    background-color:rgb(221, 45, 45);
+    font-size: 30px;
+  }
+  .columnColor128 {
+    background-color:rgb(226, 220, 126);
+    font-size: 20px;
+  }
+  .columnColor256 {
+    background-color:rgb(235, 232, 54);
+    font-size: 20px;
+  }
+  .columnColor512 {
+    background-color:rgb(219, 193, 43);
+    font-size: 20px;
+  }
+  .columnColor1024 {
+    background-color:rgb(212, 162, 22);
+    font-size: 15px;
+  }
+  .columnColor2048 {
+    background-color:rgb(59, 216, 80);
+    font-size: 15px;
+  }
+  .columnColor4096 {
+    background-color:rgb(122, 62, 31);
+    font-size: 15px;
+  }
+  .bscore {
+    font-size: x-large;
+    color:saddlebrown;
+    background-color: rgb(103, 231, 231);
+  }
+  .bresult {
+    font-size: x-large;
+    color:red;
+ }
+ .main-table {
+    width: 100%;
+    text-align: center;
+  }
+  .div-table {
+    display: inline-grid;
+    width: 80%;
+    height: 100%; 
+    background-color: #eee;         
+  }
+  .div-table-row {
+    display: inline-flex;
+    width: 100%;
+  }
+  .div-table-row div {
+    float: left; /* fix for  buggy browsers */
+    display: inline;     
+    width: 25%;
+    height: 80px;
+    line-height: 80px;
+    margin-top: 5px;
+    margin-right: 5px;  
+    border: 1px solid black; 
+  }
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+  var objGame;
+  class game2048 {
+    constructor() {
+      this.gameScore = 0;
+      this.animateCell = ",";
+      this.boardLength = 4;
+      let noOfItems = (this.boardLength * this.boardLength) - 1;
+      this.historyStackLength = 10;
+      this.generateBoard("0,".repeat(noOfItems) + "0");
+      this.historyStack = [];
+      
+    }
+
+    pushHistoryStack() {
+      let tempObj = {
+        stackGameBoard : this.gameBoard.join(), 
+        stackGameScore : this.gameScore
+      };
+      if (this.historyStack.length == this.historyStackLength) {
+        this.historyStack.shift();
+      }
+      this.historyStack.push(tempObj);
+      $("#btnUndo").show();
+    } 
+
+    popHistoryStack() {
+      if (objGame.historyStack.length > 0) {
+        let tempObj = this.historyStack.pop();
+        this.generateBoard(tempObj.stackGameBoard);
+        this.gameScore = tempObj.stackGameScore;
+        boardRefresh();
+        if (objGame.historyStack.length==0) $("#btnUndo").hide();
+      }
+    } 
+
+    generateBoard(strBoard) {
+      this.gameBoard = [];
+      let tempArrayStr = strBoard.split(",").map(function(item) { return parseInt(item);  });
+      while (tempArrayStr.length > 0)  this.gameBoard.push(tempArrayStr.splice(0,this.boardLength));
+    }
+
+    resetBoard() {
+      let noOfItems = (this.boardLength * this.boardLength) - 1;
+      this.generateBoard("0,".repeat(noOfItems) + "0");
+      this.gameScore=0;
+      this.generateRandomNo();
+      //boardRefresh();
+      this.historyStack = [];
+      $("#boardResult").text("");
+      localStorage.removeItem("GameObject");
+    }
+
+    boardTrimZero(direction) {
+      let ptr, isChange=false, hasChanged=false;
+      switch (direction) {
+        case 'Down': {
+          for (let i=0; i<=this.boardLength-1; i++) {
+            for (let j=this.boardLength-1; j>0; j--) {
+              isChange=false;  ptr = j;
+              while ((this.gameBoard[ptr][i] == 0) && (ptr >= 0))  {
+                ptr--; isChange=true;
+                if (ptr < 0) break;
+              } 
+              if ((isChange) && (ptr >=0 )  && ((this.gameBoard[j][i] != 0) || (this.gameBoard[ptr][i] !=0 ))) {
+                this.gameBoard[j][i] = this.gameBoard[ptr][i];
+                this.gameBoard[ptr][i] = 0;
+                hasChanged = true || hasChanged;
+              } 
+            }
+          }
+          break;
+        }
+        case 'Up': {
+          for (let i=0; i<this.boardLength; i++) {
+            for (let j=0; j<=this.boardLength-1; j++) {
+              isChange=false;  ptr = j;
+              while ((this.gameBoard[ptr][i] == 0) && (ptr <= (this.boardLength-1)))  {
+                isChange=true; ptr++; 
+                if (ptr > (this.boardLength-1)) break;
+              } 
+              if ((isChange) && (ptr<this.boardLength) && ((this.gameBoard[j][i] != 0) || (this.gameBoard[ptr][i] !=0 ))) {
+                this.gameBoard[j][i] = this.gameBoard[ptr][i];
+                this.gameBoard[ptr][i] = 0;
+                hasChanged = true || hasChanged;
+              } 
+            }
+          }
+          break;
+        }
+        case 'Right': {
+          for (let i=0; i<this.boardLength; i++) {
+            for (let j=this.boardLength-1; j>=0; j--) {
+              isChange=false;  ptr = j;
+              while ((this.gameBoard[i][ptr] == 0) && (ptr <= (this.boardLength-1)))  {
+                ptr--; isChange=true;
+                if (ptr == 0) break;
+              } 
+              if ((isChange) && (ptr>=0) && ((this.gameBoard[i][j] != 0) || (this.gameBoard[i][ptr] !=0 ))) {
+                this.gameBoard[i][j] = this.gameBoard[i][ptr];
+                this.gameBoard[i][ptr] = 0;
+                hasChanged = true || hasChanged;
+              } 
+            }
+          }
+          break;
+        }
+        case 'Left': {
+          for (let i=0; i<=this.boardLength-1; i++) {
+            for (let j=0; j<this.boardLength-1; j++) {
+              isChange=false; ptr = j;
+              while ((this.gameBoard[i][ptr] == 0) && (ptr <= (this.boardLength-1)))  {
+                isChange=true;  ptr++; 
+                if (ptr > (this.boardLength-1)) break;
+              } 
+              if ((isChange) && (ptr < this.boardLength) && ((this.gameBoard[i][j] != 0) || (this.gameBoard[i][ptr] !=0 ))) {
+                this.gameBoard[i][j] = this.gameBoard[i][ptr];
+                this.gameBoard[i][ptr] = 0;
+                hasChanged = true || hasChanged;
+              } 
+            }
+          }
+          break;
+        }
+      }
+      return hasChanged;
+    } /* boardTrimZero ends */
+
+    boardMoves(xSource, ySource, xTarget, yTarget, Move) {
+      let result = false;
+      if ((this.gameBoard[xSource][ySource] == this.gameBoard[xTarget][yTarget]) && (this.gameBoard[xSource][ySource] != 0))     {
+        this.gameBoard[xTarget][yTarget] = this.gameBoard[xTarget][yTarget] + this.gameBoard[xSource][ySource];
+        this.gameBoard[xSource][ySource] = 0; result = true;
+        this.gameScore += this.gameBoard[xTarget][yTarget];
+        this.animateCell += "#cell" + xTarget + yTarget + ",";
+      }
+      result = this.boardTrimZero(Move) || result;
+      return result;
+    }
+
+    boardDirectionMoves(direction) {
+      let noMoves = false;
+      this.pushHistoryStack();
+      noMoves = this.boardTrimZero(direction);
+      switch(direction) {
+        case 'Down': {
+          for (let i=0; i<=this.boardLength-1; i++) {
+            for (let j=this.boardLength-1; j>0; j--) {
+              if (this.gameBoard[j][i] == this.gameBoard[j-1][i]) 
+                noMoves = this.boardMoves(j-1, i, j, i, 'Down') || noMoves;
+            }
+          }
+          break;
+        }
+        case 'Up': {
+          for (let i=0; i<this.boardLength; i++) {
+            for (let j=0; j<this.boardLength-1; j++) {
+              if (this.gameBoard[j][i] == this.gameBoard[j+1][i]) 
+                noMoves = this.boardMoves(j+1, i, j, i, 'Up') || noMoves;
+            }
+          }
+          break;
+        }
+        case 'Left': {
+          for (let i=0; i<=this.boardLength-1; i++) {
+            for (let j=0; j<this.boardLength-1; j++) {
+              if (this.gameBoard[i][j] == this.gameBoard[i][j+1]) 
+                noMoves = this.boardMoves(i, j+1, i, j, 'Left') || noMoves;
+            }
+          }
+          break;
+        }
+        case 'Right': {
+          for (let i=0; i<this.boardLength; i++) {
+            for (let j=this.boardLength-1; j>0; j--) {
+              if (this.gameBoard[i][j] == this.gameBoard[i][j-1]) 
+                noMoves = this.boardMoves(i, j-1, i, j, 'Right') || noMoves;
+            }
+          }
+          break;
+        }
+      }
+      this.checkGameOver();
+      return noMoves;
+    } /* boardDirectionMoves ends */
+    
+    generateRandomNo() {
+      let rand, brow, bcol, randDigit, assigned = false;
+      if (Math.floor((Math.random()*2)) == 1) randDigit=2; else randDigit=4;
+      while (!assigned){
+        rand = Math.floor((Math.random()*(this.boardLength * this.boardLength)));
+        brow = Math.floor(rand / this.boardLength);
+        bcol = rand % this.boardLength;
+        if (this.gameBoard[brow][bcol] == 0) {
+          this.gameBoard[brow][bcol] = randDigit;
+          this.animateCell += '#cell' + brow + bcol + ",";
+          assigned = true;
+        }
+      }
+      this.checkGameOver();
+      boardRefresh();
+    } /* generateRandomNo ends */
+
+    checkGameOver() {
+      let isMovable = true;
+      if (((','+ this.gameBoard.join() + ',').indexOf(',0,')) < 0) {
+        isMovable = false;
+        loop1:
+          for(let i=0; i<=this.boardLength-1; i++) {
+        loop2:    
+          for (let j=0; j<=this.boardLength-2; j++) {
+            if ((this.gameBoard[i][j] == this.gameBoard[i][j+1]) || (this.gameBoard[j][i] == this.gameBoard[j+1][i])) {
+              isMovable = true; break loop1;
+            }
+          }
+        }
+      }
+      if (!isMovable) {
+        $("#boardResult").text("Game Over");
+        $("#btnUndo").hide();
+        localStorage.removeItem("GameObject");
+      }
+    }
+  } // class game2048 ends
+
+   //******* touchstart and touchmove *******//
+  var xDown = null;                                                        
+  var yDown = null;
+
+  function getTouches(evt) {
+    return evt.touches ||             // browser API
+          evt.originalEvent.touches; // jQuery
+  }                                                     
+                                                                          
+  function handleTouchStart(evt) {
+      const firstTouch = getTouches(evt)[0];                                      
+      xDown = firstTouch.clientX;                                      
+      yDown = firstTouch.clientY;                                      
+  };                                                
+                                                                          
+  function handleTouchMove(evt) {
+    if ( ! xDown || ! yDown ) {
+        return;
+    }
+
+    var xUp = evt.touches[0].clientX;                                    
+    var yUp = evt.touches[0].clientY;
+
+    var xDiff = xDown - xUp;
+    var yDiff = yDown - yUp;
+                                                                        
+    if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
+        if ( xDiff > 0 ) {
+          if (objGame.boardDirectionMoves('Left')) objGame.generateRandomNo();
+        } else {  
+          if (objGame.boardDirectionMoves('Right')) objGame.generateRandomNo();
+        }                       
+    } else {
+        if ( yDiff > 0 ) {
+            if (objGame.boardDirectionMoves('Up')) objGame.generateRandomNo();
+        } else { 
+            if (objGame.boardDirectionMoves('Down')) objGame.generateRandomNo();
+        }                                                                 
+    }
+    /* reset values */
+    xDown = null;
+    yDown = null;      
+  };
+  //******* touchstart and touchmove *******//
+
+  //******* arrow key moves *******//
+  function handleKeyDown(evt) {
+    if (event.defaultPrevented) {
+      return; // Do nothing if the event was already processed
+    }
+    switch (evt.key) {
+      case "Down":
+      case "ArrowDown": 
+        if (objGame.boardDirectionMoves('Down')) objGame.generateRandomNo();
+        break;
+      case "Up":
+      case "ArrowUp": 
+        if (objGame.boardDirectionMoves('Up')) objGame.generateRandomNo();
+        break;
+      case "Left":
+      case "ArrowLeft": 
+        if (objGame.boardDirectionMoves('Left')) objGame.generateRandomNo();
+        break;
+      case "Right":
+      case "ArrowRight": 
+        if (objGame.boardDirectionMoves('Right')) objGame.generateRandomNo();
+        break;
+      default: return;
+    }
+    evt.preventDefault();
+  };
+  //******* arrow key moves *******//
+  
+  function boardRefresh() {
+    let colName = '';
+    for (let i=0; i < objGame.boardLength; i++) {
+      for (let j=0; j < objGame.boardLength; j++) {
+        colName = '#cell' + i + j;
+        if (objGame.gameBoard[i][j] > 0) 
+          $(colName).text(objGame.gameBoard[i][j]);
+        else 
+          $(colName).text('');
+        $(colName).removeClass().addClass("columnColor" + objGame.gameBoard[i][j]);
+        if (objGame.animateCell.indexOf("," + colName + ",") >= 0)
+          $(colName).animate({ "opacity": "0.5" }, 100).animate({ "opacity": "1.0" }, 100);
+      }
+    }
+    objGame.animateCell = ","
+    $("#boardScore").text("Score : " + objGame.gameScore);
+    localStorage.setItem("GameObject", JSON.stringify(objGame));
+  };
+
+  
+  function createBoardDisplay() {
+    let strDisplayBoard = '';
+    for (let i=0; i < objGame.boardLength; i++) {
+      strDisplayBoard += '<div class="div-table-row">';
+      for (let j=0; j < objGame.boardLength; j++) {
+        strDisplayBoard += '<div id="cell'+i+j+'"></div>';
+      }
+      strDisplayBoard += '</div>';
+    }
+    $("#maindiv").append(strDisplayBoard);
+  };
+
+  $(document).ready(function() {
+    document.addEventListener('touchstart', handleTouchStart, false);        
+    document.addEventListener('touchmove', handleTouchMove, false);
+    document.addEventListener('keydown', handleKeyDown, false);
+
+    objGame = new game2048;
+    createBoardDisplay();
+    if (localStorage.getItem("GameObject")) {
+      let tempObj = JSON.parse(localStorage.getItem("GameObject"));
+      objGame.gameBoard = tempObj.gameBoard;
+      objGame.gameScore = tempObj.gameScore;
+      objGame.historyStack = tempObj.historyStack;
+    }
+    if (performance.navigation.type == performance.navigation.TYPE_RELOAD) {
+      boardRefresh();
+    } else {
+      objGame.generateRandomNo();
+    }
+    if (objGame.historyStack.length == 0) $("#btnUndo").hide();
+  })
+
+</script>
+<body>
+<div class="container pt-5">
+  <div class="main-table">
+    <form>
+      <div class="div-table" id="maindiv"></div>
+      <div>&nbsp;</div>
+      <div><span class="bresult" id="boardResult"></span></div>
+      <div>&nbsp;</div>
+      <div>
+        <table width="80%" stlyle="align:center">
+            <tr width="100%">
+              <td style="text-align:left"><span class="bscore" id="boardScore"></span></td>
+            </tr>
+            <tr><td>&nbsp;</td></tr>
+            <tr>
+              <td><input style="width:100px; height:50px" type="button" value="Restart" onclick="objGame.resetBoard();">
+                <input id="btnUndo" style="width:100px; height:50px" type="button" value="Undo" onclick="objGame.popHistoryStack();"></td>
+            </tr>
+        </table>
+        </div>
+    </form> 
+  </div>
+  <div>&nbsp;&nbsp;&nbsp;Note:This is replica of the game 2048, originally developed by <a href="https://play2048.co/" target="_blank"><mark>Gabriele Cirulli</mark></a></div>
+</div>
+</body>
+</html>

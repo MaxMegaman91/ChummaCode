@@ -1,0 +1,23 @@
+txt
+
+import pyautogui as pg
+import time
+ 
+def delete_for_everyone():
+    pg.click(802, 960, duration=0.5)
+    pg.typewrite("testing")
+    pg.typewrite(["enter"])
+    time.sleep(2)
+    pg.moveTo(1749,867,duration=0.5)
+    pg.click()
+     
+    # time.sleep(1)
+    pg.moveTo(1674,831,duration=0.5)
+    pg.click()
+     
+    # time.sleep(1)
+    pg.moveTo(1093,545,duration=0.5)
+    pg.click()
+
+time.sleep(10)
+delete_for_everyone()
