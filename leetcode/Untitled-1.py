@@ -1,4 +1,6 @@
-s = "abaccb"
-distance = [1,3,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-alpha = "abcdefghijklmnopqrstuvwxyz"
+class a():
+    def __init__(self) -> None:
+        self.a = 10
 
+with open("example.txt", "w") as f:
+    f.write(str(a()))

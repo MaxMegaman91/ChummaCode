@@ -1,27 +1,24 @@
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
+import json
 
-url = "https://www.icc-cricket.com/rankings/mens/player-rankings/4029"
+def retrieveInfo(playerID):
+    with open("coolProjects/cricoreAPI/"+str(playerID)+".json", "a") as f:
+        f.write("{")
 
-page = urlopen(url)
-html_bytes = page.read()
-html = html_bytes.decode("utf-8")
+        activityList = ["BATTING", "BOWLING", "FIELDING"]
+        for activity in activityList:
+            url = "https://hs-consumer-api.espncricinfo.com/v1/pages/player/stats/summary?recordClassId=1&playerId="+str(playerID)+"&type="+str(activity.upper())
+            soup = BeautifulSoup(urlopen(url).read().decode("utf-8"),"html.parser")
+            jsontext = json.loads(soup.text)["summary"]["groups"][0]["stats"][0]
+            f.write("\""+activity + "\":")
+            json.dump(jsontext, f)
+            if activityList.index(activity) < 2: f.write(",")
+            f.write("\n")
 
+        f.write("}")
+        return
+    
 
-        
-
-# <div class="rankings-player-bio__name-wrapper">
-# <div class="rankings-player-bio__info">
-# 
-
-def write():
-    with open("read.txt", "w") as f:
-        f.write(html)
-
-write()
-
-soup = BeautifulSoup(html,"html.parser")
-
-print(soup.find_all(attrs={"class": "player-profile-header__title"}))
-print(soup.find_all(attrs={"class": "player-profile-header__meta-text"}))
-# print(soup.find_all(attrs={"class": "player-profile-header__meta-text"}))
+for x in range(99999):
+    retrieveInfo(x)
