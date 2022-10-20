@@ -1,6 +1,6 @@
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
-import json, os
+import json, os, dicttoxml
 
 def gettext(url):
     soup = BeautifulSoup(urlopen(url).read().decode("utf-8"),"html.parser")
@@ -58,5 +58,22 @@ def teamInfo(teamID, getIndividualPlayerData=False, saveFile=True):
         for player in jsontext["content"]["players"]["results"]:
             playerInfo(player["id"], saveFile="/home/aarush/cricorehard/teamData/"+teamname+"/"+player["longName"]+".json")
 
+def jsonToXML(jsonFilePath, onDebug=False, deleteJSON=False):
 
-teamInfo(1, True)
+    with open(jsonFilePath, "r") as file: 
+        data = json.load(file)
+
+    if onDebug: print(data)
+
+    xml = dicttoxml.dicttoxml(data)
+    
+    if onDebug: print(xml)
+    
+    with open(jsonFilePath[:-4]+"xml", "w") as file:
+        file.write(xml.decode("utf-8"))
+    
+    if deleteJSON:
+        os.remove(jsonFilePath)
+    
+
+jsonToXML("/home/aarush/ChummaCode/getcloth.json")
