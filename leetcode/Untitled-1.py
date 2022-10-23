@@ -19,6 +19,7 @@ x = {
 
 
 """
+"""
 daytime = True
 
 while (daytime):
@@ -32,7 +33,7 @@ while (daytime):
     x /= 5125
 
     print("The answer is " + str(int(x)))
-
+"""
 # print(str(x))  $$$      11.0 -> 11 -> "11"
 #                         11.0 -> -> -> "11.0"s
 
@@ -40,3 +41,6 @@ while (daytime):
 
 
 # print(x)
+
+jsonFilePath = "hello.json"
+print(jsonFilePath[:-4]+"xml")
