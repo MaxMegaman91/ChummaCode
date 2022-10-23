@@ -31,6 +31,10 @@ SAVE_PATH = "/home/aarush/Downloaded_Youtube" if os.name == "posix" else "C:/Use
 
 ################################################################################################################
 
+def getFileCount(dir_path=r"C:/users/aarus/Downloaded_Youtube"):
+    return int(len([entry for entry in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, entry))]))
+
+
 # edits the mp3 info by title, artist, album, and lyrics API
 def info_of_mp3(title, artist, album, wantlyrics, filenamefull):
     from mutagen.id3 import ID3, TIT2, TALB, TPE1, USLT
@@ -161,12 +165,12 @@ def info():
 ################################################################################################################
 # Login and password information
 
-import getpass
+"""import getpass
 os.system('cls' if os.name == 'nt' else 'clear')
 login = getpass.getpass(prompt='Login: ', stream=None)
 pasw = getpass.getpass(prompt='Password: ', stream=None)
-if login != "greatestloser" or pasw != "!g0t$28r0":
-    sys.exit("Bad info! ")
+if login != "greatestloser" or pasw != "!g0t$2":
+    os.exit("Bad info! ")"""
 
 ################################################################################################################
 # Main loop
@@ -223,6 +227,43 @@ while True:
         findlink(link)
         download_with_qual(quality, name)
         info_of_mp3(name, arti, albm, wlry, name+".mp3")
+    
+    elif textinput == "cleanup->":
+        if os.name == "posix": os.exit()
+        import pyautogui, time
+        pyautogui.press("win")
+        time.sleep(1)
+        pyautogui.write("Itunes")
+        time.sleep(2)
+        pyautogui.press("enter")
+        time.sleep(10)
+        with pyautogui.hold("ctrl"): pyautogui.press("o")
+        time.sleep(1)
+        pyautogui.click(x=1748, y=474)
+        with pyautogui.hold("ctrl"): pyautogui.press("a")
+        time.sleep(1)
+        pyautogui.press("enter")
+        time.sleep(5)
+        pyautogui.moveTo(1910, 180)
+        pyautogui.mouseDown(button="left")
+        pyautogui.moveTo(1910, 970)
+        pyautogui.mouseUp(button='left')
+        time.sleep(1)
+        pyautogui.click(1180, 980)
+        for x in range(getFileCount()-1):pyautogui.hotkey('shift', 'up')
+        time.sleep(1)
+        pyautogui.click(30,67)
+        pyautogui.moveTo(68,441,1)
+        time.sleep(0.25)
+        pyautogui.moveTo(489,448,0.25)
+        pyautogui.moveTo(495,519,0.25)
+        pyautogui.click()
+        time.sleep(getFileCount()*7)
+        pyautogui.press("del")
+        pyautogui.click(276,102)
+        pyautogui.click(1683,981)
+        time.sleep(10)
+
 
                 
     # else if we are downloading only one
@@ -256,6 +297,6 @@ while True:
             download_by_itag(itagtouse, name)
     
     # cleanup
-    print("File Ready! \n")
+    print("All done and finished! \n")
     time.sleep(5)
 ################################################################################################################
