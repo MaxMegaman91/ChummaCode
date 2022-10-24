@@ -1,4 +1,4 @@
-SAVE_PATH = "/home/aarush/ChummaCode/dappaProjects/getcloth/"
+import os
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import json, datetime
@@ -17,7 +17,7 @@ def get_weather(hourrange=7, location=False):
     weather = json.loads(BeautifulSoup(urlopen("http://dataservice.accuweather.com/forecasts/v1/hourly/12hour/55487?apikey=%09Kt8Yf7YHg1RhjCGCBaVuRlf2kvQFPJzA&language=en-us&details=true&metric=true").read().decode("utf-8"), "html.parser").text)
     neededWeather = weather[:hourrange]
 
-    with open(SAVE_PATH + "getcloth.json", "w") as f: f.write(str(weather))
+    with open(os.path.join("dappaProjects/getcloth", "getcloth.json"), "w") as f: f.write(str(weather))
 
     for weatherByHour in neededWeather:
         toAppend = [weatherByHour["Temperature"], weatherByHour["RealFeelTemperature"], weatherByHour["HasPrecipitation"]]
@@ -30,11 +30,11 @@ class Laundry():
     def __init__(self, belongsToName="Aarush", selfImport=True):
         self.name = belongsToName
         if selfImport:
-            with open(SAVE_PATH+"extract.txt", "w") as extractfile:
+            with open(os.path.join("dappaProjects/getcloth", "extract.txt"), "w") as extractfile:
                 pass
 
 class cloth():
-    def __nit__(self):
+    def __init__(self, identifier="", inLaundry=False):
         pass
 
 
