@@ -105,6 +105,7 @@ def findlink(link):
         name = validFilename(yt.title)
     info()
 
+
 # replace string invalid characters to make a valid filename
 def validFilename(x):
     thelist=[]
@@ -174,129 +175,131 @@ if login != "greatestloser" or pasw != "!g0t$2":
 
 ################################################################################################################
 # Main loop
-while True:
-    name = ""
+def main(x=False):
+    '''*** Precaution ***'''
+    while x:
+        name = ""
 
-    os.system('cls' if os.name == 'nt' else 'clear')
+        os.system('cls' if os.name == 'nt' else 'clear')
 
-    print("==========================================================================================")
-    textinput = input("What mode of installing (txt, mp3, emp3, or <Enter> for link input): -->  ") # link of the video
-
-    # If we are reading the txt file
-    if textinput == "txt":
         print("==========================================================================================")
-        print("Reading file!" + "\n\n")
+        textinput = input("What mode of installing (txt, mp3, emp3, or <Enter> for link input): -->  ") # link of the video
 
-        # Read the text file
-        with open("/home/aarush/ChummaCode/coolProjects/YT/the.txt", "r") as f:
-            mylist = [line.rstrip('\n') for line in f]
-            mylist = mylist[2:]
+        # If we are reading the txt file
+        if textinput == "txt":
+            print("==========================================================================================")
+            print("Reading file!" + "\n\n")
+
+            # Read the text file
+            with open("/home/aarush/ChummaCode/coolProjects/YT/the.txt", "r") as f:
+                mylist = [line.rstrip('\n') for line in f]
+                mylist = mylist[2:]
+            
+            # and read line by line
+            for line in mylist:
+                link, quality, *extraStuff = line.split("|")
+
+                # if the quality is not mp3, download with quality
+                if quality != "mp3" or quality != "aud":
+                    findlink(link) # Split each line by the | sign, then find the link associated
+                    download_with_qual(quality, name) # download with the quality on the other side of the |
+
+                # if the quality is mp3, then download and edit metadata
+                else:
+                    link, quality, name, arti, albm, wlry, *extraStuff= extraStuff
+                    findlink(link)
+                    download_with_qual(quality, name)
+                    info_of_mp3(name, arti, albm, wlry, name+".mp3")
+
+        # install mp3 and edit metadata     
+        elif textinput == "mp3":
+            textinput = input("Give your inputs (link|qual|name|artist|albm|wlry)! ")
+            link, quality, name, arti, albm, wlry, *extraStuff= textinput.split("|")
+            findlink(link)
+            download_with_qual(quality, name)
+            info_of_mp3(name, arti, albm, wlry, name+".mp3")
         
-        # and read line by line
-        for line in mylist:
-            link, quality, *extraStuff = line.split("|")
+        # install mp3 and edit metadata (gathering inputs separately)
+        elif textinput == "emp3":
+            link = input("What is the link: ")
+            quality = input("What is the quality: ")
+            name = input("What is the name: ")
+            arti = input("What is the artist: ")
+            albm = input("What is the album: ")
+            wlry = input("Would you like lyrics (1 for true, 0 for false): ")
+            findlink(link)
+            download_with_qual(quality, name)
+            info_of_mp3(name, arti, albm, wlry, name+".mp3")
+        
+        elif textinput == "cleanup->":
+            if os.name == "posix": os.exit()
+            import pyautogui, time
+            pyautogui.press("win")
+            time.sleep(1)
+            pyautogui.write("Itunes")
+            time.sleep(2)
+            pyautogui.press("enter")
+            time.sleep(10)
+            with pyautogui.hold("ctrl"): pyautogui.press("o")
+            time.sleep(1)
+            pyautogui.click(x=1748, y=474)
+            with pyautogui.hold("ctrl"): pyautogui.press("a")
+            time.sleep(1)
+            pyautogui.press("enter")
+            time.sleep(5)
+            pyautogui.moveTo(1910, 180)
+            pyautogui.mouseDown(button="left")
+            pyautogui.moveTo(1910, 970)
+            pyautogui.mouseUp(button='left')
+            time.sleep(1)
+            pyautogui.click(1180, 980)
+            for x in range(getFileCount()-1):pyautogui.hotkey('shift', 'up')
+            time.sleep(1)
+            pyautogui.click(30,67)
+            pyautogui.moveTo(68,441,1)
+            time.sleep(0.25)
+            pyautogui.moveTo(489,448,0.25)
+            pyautogui.moveTo(495,519,0.25)
+            pyautogui.click()
+            time.sleep(getFileCount()*7)
+            pyautogui.press("del")
+            pyautogui.click(276,102)
+            pyautogui.click(1683,981)
+            time.sleep(10)
 
-            # if the quality is not mp3, download with quality
-            if quality != "mp3" or quality != "aud":
-                findlink(link) # Split each line by the | sign, then find the link associated
-                download_with_qual(quality, name) # download with the quality on the other side of the |
 
-            # if the quality is mp3, then download and edit metadata
-            else:
-                link, quality, name, arti, albm, wlry, *extraStuff= extraStuff
-                findlink(link)
-                download_with_qual(quality, name)
-                info_of_mp3(name, arti, albm, wlry, name+".mp3")
+                    
+        # else if we are downloading only one
+        elif textinput == "":
+            textinput = input("Give me a youtube link: ")
 
-    # install mp3 and edit metadata     
-    elif textinput == "mp3":
-        textinput = input("Give your inputs (link|qual|name|artist|albm|wlry)! ")
-        link, quality, name, arti, albm, wlry, *extraStuff= textinput.split("|")
-        findlink(link)
-        download_with_qual(quality, name)
-        info_of_mp3(name, arti, albm, wlry, name+".mp3")
-    
-    # install mp3 and edit metadata (gathering inputs separately)
-    elif textinput == "emp3":
-        link = input("What is the link: ")
-        quality = input("What is the quality: ")
-        name = input("What is the name: ")
-        arti = input("What is the artist: ")
-        albm = input("What is the album: ")
-        wlry = input("Would you like lyrics (1 for true, 0 for false): ")
-        findlink(link)
-        download_with_qual(quality, name)
-        info_of_mp3(name, arti, albm, wlry, name+".mp3")
-    
-    elif textinput == "cleanup->":
-        if os.name == "posix": os.exit()
-        import pyautogui, time
-        pyautogui.press("win")
-        time.sleep(1)
-        pyautogui.write("Itunes")
-        time.sleep(2)
-        pyautogui.press("enter")
-        time.sleep(10)
-        with pyautogui.hold("ctrl"): pyautogui.press("o")
-        time.sleep(1)
-        pyautogui.click(x=1748, y=474)
-        with pyautogui.hold("ctrl"): pyautogui.press("a")
-        time.sleep(1)
-        pyautogui.press("enter")
+            findlink(textinput) # Find the link associated yt vid
+            itagtouse = input("What quality or itag would you like? -->  ") # Gathering the itag we require
+
+            if itagtouse == "": # Auto download highest progressive source
+                itagtouse = yt.streams.filter(progressive=True).get_highest_resolution().itag
+                download_by_itag(itagtouse, name)
+
+            elif (itagtouse in resolution.keys()): # Download with quality input (eg. 4k, hd, uhd, sd, mp3, aud)
+                download_with_qual(itagtouse,name)
+
+            elif len(itagtouse.split("&")) == 2: # Download 2 custom itags and combine
+                viditag, auditag = itagtouse.split("&")
+                print(viditag)
+                print(auditag)
+                print("Downloading video...")
+                download_by_itag(viditag, "tempvid.mp4")
+                print("Downloading audio...")
+                download_by_itag(auditag, "tempaud.mp4")
+                print("Combining...")
+                combine_audio_video("tempaud.mp4", "tempvid.mp4",name+".mp4")
+                print("Product installed and file ready!\n")
+
+            elif itagtouse[0:5] == "itag:": # specify certain itag
+                itagtouse == itagtouse[6:]
+                download_by_itag(itagtouse, name)
+        
+        # cleanup
+        print("All done and finished! \n")
         time.sleep(5)
-        pyautogui.moveTo(1910, 180)
-        pyautogui.mouseDown(button="left")
-        pyautogui.moveTo(1910, 970)
-        pyautogui.mouseUp(button='left')
-        time.sleep(1)
-        pyautogui.click(1180, 980)
-        for x in range(getFileCount()-1):pyautogui.hotkey('shift', 'up')
-        time.sleep(1)
-        pyautogui.click(30,67)
-        pyautogui.moveTo(68,441,1)
-        time.sleep(0.25)
-        pyautogui.moveTo(489,448,0.25)
-        pyautogui.moveTo(495,519,0.25)
-        pyautogui.click()
-        time.sleep(getFileCount()*7)
-        pyautogui.press("del")
-        pyautogui.click(276,102)
-        pyautogui.click(1683,981)
-        time.sleep(10)
-
-
-                
-    # else if we are downloading only one
-    elif textinput == "":
-        textinput = input("Give me a youtube link: ")
-
-        findlink(textinput) # Find the link associated yt vid
-        itagtouse = input("What quality or itag would you like? -->  ") # Gathering the itag we require
-
-        if itagtouse == "": # Auto download highest progressive source
-            itagtouse = yt.streams.filter(progressive=True).get_highest_resolution().itag
-            download_by_itag(itagtouse, name)
-
-        elif (itagtouse in resolution.keys()): # Download with quality input (eg. 4k, hd, uhd, sd, mp3, aud)
-            download_with_qual(itagtouse,name)
-
-        elif len(itagtouse.split("&")) == 2: # Download 2 custom itags and combine
-            viditag, auditag = itagtouse.split("&")
-            print(viditag)
-            print(auditag)
-            print("Downloading video...")
-            download_by_itag(viditag, "tempvid.mp4")
-            print("Downloading audio...")
-            download_by_itag(auditag, "tempaud.mp4")
-            print("Combining...")
-            combine_audio_video("tempaud.mp4", "tempvid.mp4",name+".mp4")
-            print("Product installed and file ready!\n")
-
-        elif itagtouse[0:5] == "itag:": # specify certain itag
-            itagtouse == itagtouse[6:]
-            download_by_itag(itagtouse, name)
-    
-    # cleanup
-    print("All done and finished! \n")
-    time.sleep(5)
 ################################################################################################################
