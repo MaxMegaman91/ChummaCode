@@ -15,19 +15,10 @@ start = timeit.default_timer()
 
     return possibilities(nums)"""
 
-def findMax(nums, minK, maxK):
-    returnval = 0
-    for leng in range(1,len(nums)+1):
-        for x in range(len(nums)-(leng-1)):
-            if min(nums[x:x+leng]) == minK and max(nums[x:x+leng]) == maxK: 
-                returnval += 1
-
-    return returnval
-
-
-print(findMax(nums = [1,1,1,1], minK = 1, maxK = 1))
+def findMax(creators, ids, views):
+    return
         
-
+print(findMax(creators = ["alice","bob","alice","chris"], ids = ["one","two","three","four"], views = [5,10,5,4]))
 #####################################################
 stop = timeit.default_timer()
 
