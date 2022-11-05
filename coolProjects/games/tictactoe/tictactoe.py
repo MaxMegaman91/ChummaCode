@@ -1,4 +1,4 @@
-import os, time
+"""import os, time
 
 board = [[" "," "," "],[" "," "," "],[" "," "," "]]
 activePlayer = True
@@ -15,13 +15,11 @@ def print_board(board):
 
 def change_board(location, val="x"):
     global board
-
-    """
+    """"""
     Takes 2 arguments and modifies board to put in user input
     1) location as string with horizontal letter and vertical number (ex. a1, c3, etc.)
     2) value as either x or o, or " " to clear
-    """
-
+    """"""
     location = list(location)
     realLocation = [int({"a":1,"b":2,"c":3}[location[0]]), int(location[1])]
     
@@ -67,4 +65,10 @@ while True:
 
 
 
+
+"""
+
+import tkinter as tk
+
+window = tk.Tk()
 

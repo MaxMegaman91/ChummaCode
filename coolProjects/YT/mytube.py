@@ -74,7 +74,7 @@ class ytVideo():
             yield x # must decode all itags and attributes for neater space
         
 
-    def downloadByStream(self, stream, finalname="temp", SAVE_PATH="C:/users/aar/Downloaded_Youtube"):
+    def downloadByStream(self, stream, finalname="temp", SAVE_PATH="C:/Users/aarus/Downloaded_Youtube"):
         try:
             # downloading the video
             self.object.streams.get_by_itag(stream.itag).download(output_path=SAVE_PATH, filename=finalname+".mp4")
@@ -84,7 +84,7 @@ class ytVideo():
 
 
     # download a file with quality input accessing yt object
-    def download(self, quality="sd", finalname="", SAVE_PATH="C:/users/aar/Downloaded_Youtube"):
+    def download(self, quality="sd", finalname="", SAVE_PATH="C:/Users/aarus/Downloaded_Youtube"):
 
         # Resolution from keyword to pixelcount (if already pixelcount, "except" triggered)
         try: quality = {"8k": "4320p", "4k": "2160p", "uhd": "1440p", "hd": "1080p", "sd": "720p", "usd": "360p"}[quality]
@@ -124,7 +124,7 @@ class ytVideo():
         audioclip = AudioFileClip(self.audpath)
 
         video = videoclip.set_audio(audioclip)
-        video.write_videofile(str(outputfile), fps=60, threads=32)
+        video.write_videofile(str(outputfile), fps=60, threads=64)
         
         # check if audio and video files are closed to delete them
         while True: 
@@ -202,7 +202,7 @@ class ytAudio():
             yield stream # must decode all itags and attributes for neater space
         
 
-    def downloadByStream(self, stream, finalname="temp", SAVE_PATH="C:/users/aar/Downloaded_Youtube"):
+    def downloadByStream(self, stream, finalname="temp", SAVE_PATH="C:/Users/aarus/Downloaded_Youtube"):
 
         try:
             # downloading the video
@@ -213,7 +213,7 @@ class ytAudio():
 
 
     # download a file with quality input accessing yt object
-    def download(self, finalname="", SAVE_PATH="C:/users/aar/Downloaded_Youtube"):
+    def download(self, finalname="", SAVE_PATH="C:/Users/aarus/Downloaded_Youtube"):
 
         # setting filename if no name inputted
         if finalname == "": finalname = self.vidname
