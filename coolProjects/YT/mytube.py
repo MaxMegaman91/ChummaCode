@@ -21,7 +21,9 @@ class ytVideo():
         self.link = link
         self.object = self.findlink(link)
 
-        if self.object == "Invalid Link!": raise URLError("Invalid link! ")
+        if self.object == "Invalid Link!": 
+            if DEBUG: print(link, " is not valid link")
+            raise URLError("Invalid link! ")
 
         return
 
@@ -38,10 +40,10 @@ class ytVideo():
             return "Invalid Link!"
 
         self.vidname = self.validFilename(yt.title)
-
         if DEBUG:
-            self.info()
-            self.streams()
+            print("\n\nVid name: ", self.vidname)
+            print("Info: ", [x for x in self.info()])
+            print("Streams: ", [x for x in self.streams()])
         return yt
 
 
@@ -77,7 +79,9 @@ class ytVideo():
     def downloadByStream(self, stream, finalname="temp", SAVE_PATH="C:/Users/aarus/Downloaded_Youtube"):
         try:
             # downloading the video
+            if DEBUG: print(f"Downloading itag {str(stream.itag)}")
             self.object.streams.get_by_itag(stream.itag).download(output_path=SAVE_PATH, filename=finalname+".mp4")
+            if DEBUG: print("Downloaded! ")
         except: raise DownloadError("An error occured while trying to download the video/audio!")
 
         return SAVE_PATH+"/"+finalname+".mp4"
@@ -119,13 +123,14 @@ class ytVideo():
 
     # combines a video and audio file for higher quality video files
     def AVCombine(self, outputfile):
-
+        if DEBUG: print("Combining tempaud and tempvid! ")
         videoclip = VideoFileClip(self.vidpath)
         audioclip = AudioFileClip(self.audpath)
 
         video = videoclip.set_audio(audioclip)
         video.write_videofile(str(outputfile), fps=60, threads=64)
-        
+        if DEBUG: print("Combined, now deleting tempaud and tempvid! ")
+
         # check if audio and video files are closed to delete them
         while True: 
             try:
@@ -133,8 +138,10 @@ class ytVideo():
                 myfile.close()
                 os.remove(self.vidpath)
                 os.remove(self.audpath)
+                if DEBUG: print("Cleaned up and done! ")
                 break                             
             except IOError:
+                if DEBUG: print("Couldn't delete the files! ")
                 pass
         
         return outputfile
@@ -178,7 +185,7 @@ class ytAudio():
 
         for letter in filename: 
             if letter not in "abcdefghijklmnopqrstuvwxyz_ ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-":
-                filename.replace(letter, "", 1)
+                filename = filename.replace(letter, "", 1)
 
         return filename
 
@@ -274,13 +281,13 @@ class ytAudio():
 def main(FULLFILL=False):
     '''*** Precaution ***'''
     
-    while x:
+    while FULLFILL:
         
         os.system('cls' if os.name == 'nt' else 'clear')
 
         linkinput = input("What is the YouTube link: ")
         isv = input("Would you like video or audio? ")
-        isv = True if voa[0].lower() == "v" else False
+        isv = True if isv[0].lower() == "v" else False
 
         if isv:
             mylink = ytVideo(linkinput)

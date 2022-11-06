@@ -15,10 +15,20 @@ start = timeit.default_timer()
 
     return possibilities(nums)"""
 
-def findMax(creators, ids, views):
-    return
+def findMax(nums, k):
+    sp = 0
+    sum = 0
+    keyval = {}
+
+    for x in range(len(nums)-k+1):
+        if nums[x] in keyval:
+            keyval[nums[x]] = 1
+        else:
+            keyval[nums[sp]] = None
+            sp += 1
+
         
-print(findMax(creators = ["alice","bob","alice","chris"], ids = ["one","two","three","four"], views = [5,10,5,4]))
+print(findMax(nums = [1,5,4,2,9,9,9], k = 3))
 #####################################################
 stop = timeit.default_timer()
 
