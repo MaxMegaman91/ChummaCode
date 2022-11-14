@@ -1,25 +1,57 @@
-from sympy import var
-from sympy import sympify
+# this lnreq, not qrep 
+class Equation():
+    
+    def __init__(self, Equation):
+        self.equation = Equation
+        return
 
-"""for ab in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ":
-    exec(str(ab+" = var(\""+ab+"\")"))
-user_input = '5*x+2'
-expr = sympify(user_input)
-res = expr.subs(x, 3.14)
-print(res)"""
+    def _0ToTerms_(self):
+        self.terms = []
+        return
+    
+    def __add__(self, new): # to add to another equation
+        return Equation(self.equation + new.equation)
 
+    def __sub__(self, new): # to subtract to another equation
+        return Equation(self.equation - new.equation)
+    
+    def __repr__(self): # for value reading
+        return str(self.equation)
+        
+    def __str__(self): # For stringify and print
+        return str(self.equation)
 
-inputEquation = input("What is the equation? -> ")
-varlist=[]
+class Terms():
+    def __init__(self, term):
+        import re
+        self.rawTerm = term
 
-for abc in inputEquation:
-    if abc.isalpha():
-        exec(str(abc+" = var(\""+abc+"\")"))
-        varlist.append(abc)
-        if inputEquation[inputEquation.index(abc)-1].isdigit() and inputEquation.index(abc)-1>=0:
-            inputEquation = inputEquation[:inputEquation.index(abc)] + '*' + inputEquation[inputEquation.index(abc):]
+        subbed = re.sub("[A-Za-z]", lambda ele: " " + ele[0], term) # ? qrep here replace (ele[0] + " ",) with just (ele[0],)
+        subbed = subbed.replace("*","")
+        self.term = subbed.replace(" ", "*")
+        self.tlist = self.term.split("*")
 
-inputEquation.replace("^", "**")
-expr = sympify(inputEquation)
-exec("ans = expr.subs(varlist[0], input())")
-print(ans)
+        self.coeff = int(self.tlist[0])
+        self.varsAvail = self.tlist[1:]
+    
+    def __mul__(self, newT):
+        ansCoeff = str(self.coeff * newT.coeff)
+        # variable multiplication) ansVars = something.something.something
+        ansT = Terms(ansCoeff + ansVars)
+        return ansT
+    
+    def _Subs_(self, **kwargs):
+        for var, val in kwargs.items():
+            if var in self.varsAvail:
+                toEval = self.term.replace(var, str(val))
+        return eval(toEval)
+    
+    def __repr__(self): # for value reading
+        return str(self.term)
+        
+    def __str__(self): # For stringify and print
+        return str(self.term)
+
+term = Terms("2x")
+print(term)
+print(term._Subs_(x=5))

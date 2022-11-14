@@ -41,6 +41,9 @@ while (daytime):
 
 
 # print(x)
-
-jsonFilePath = "hello.json"
-print(jsonFilePath[:-4]+"xml")
+import re
+string = "512*a*c*d*s"
+subbed = re.sub("[A-Za-z]", lambda ele: " " + ele[0], string)
+subbed = subbed.replace("*","")
+subbed = subbed.replace(" ", "*")
+print(subbed)
