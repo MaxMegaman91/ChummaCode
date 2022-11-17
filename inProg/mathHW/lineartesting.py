@@ -3,11 +3,31 @@ class Equation():
     
     def __init__(self, Equation):
         self.equation = Equation
+        self._0ToTerms_()
         return
 
     def _0ToTerms_(self):
-        self.terms = []
+        def csplit(a,b):
+            return [a[:b], a[b:]]
+        
+        self.terms = [Terms("3x"), Terms("+9")]
+        self.varsAvail = []
+
+        for x in self.terms:
+            self.varsAvail.append(x.varsAvail)
+
+        #self.equation = self.terms.join()
         return
+
+    def _Subs_(self, **kwargs):
+        toEval = []
+        for var, val in kwargs.items():
+            for term in self.terms:
+                if var in term.varsAvail:
+                    toEval.append(int(term._Subs_(x=val)))
+                else:
+                    toEval.append(int(term.term))
+        return sum(toEval)
     
     def __add__(self, new): # to add to another equation
         return Equation(self.equation + new.equation)
@@ -20,6 +40,7 @@ class Equation():
         
     def __str__(self): # For stringify and print
         return str(self.equation)
+
 
 class Terms():
     def __init__(self, term):
@@ -52,6 +73,6 @@ class Terms():
     def __str__(self): # For stringify and print
         return str(self.term)
 
-term = Terms("2x")
-print(term)
-print(term._Subs_(x=5))
+a = 3 * 4 + b - 1
+eq=Equation("3x+9")
+print(eq._Subs_(x=2))
