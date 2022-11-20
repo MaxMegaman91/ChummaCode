@@ -10,7 +10,7 @@ class Equation():
         def csplit(a,b):
             return [a[:b], a[b:]]
         
-        self.terms = [Terms("3x"), Terms("+9")]
+        self.terms = [Terms("5a"), Terms("+9")]
         self.varsAvail = []
 
         for x in self.terms:
@@ -73,6 +73,5 @@ class Terms():
     def __str__(self): # For stringify and print
         return str(self.term)
 
-a = 3 * 4 + b - 1
 eq=Equation("3x+9")
-print(eq._Subs_(x=2))
+print(eq._Subs_(self=3))
