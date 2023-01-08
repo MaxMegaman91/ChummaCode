@@ -1,70 +1,55 @@
-
-import sys
 import socket
-import selectors
-import types
-
-sel = selectors.DefaultSelector()
-messages = [b"Message 1 from client.", b"Message 2 from client."]
+import threading
+import time, os
 
 
-def start_connections(host, port, num_conns):
-    server_addr = (host, port)
-    for i in range(0, num_conns):
-        connid = i + 1
-        print(f"Starting connection {connid} to {server_addr}")
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.setblocking(False)
-        sock.connect_ex(server_addr)
-        events = selectors.EVENT_READ | selectors.EVENT_WRITE
-        data = types.SimpleNamespace(
-            connid=connid,
-            msg_total=sum(len(m) for m in messages),
-            recv_total=0,
-            messages=messages.copy(),
-            outb=b"",
-        )
-        sel.register(sock, events, data=data)
+HEADER = 64 # first message from the client should be 64 bytes 
+PORT = 65433 # server port number
+FORMAT = 'utf-8' # decode format from bytes
+DISCONNECT_MESSAGE = "!DISCONNECT" # the message sent from the client to let the server know 
+    # .. that you are disconnecting from the server
+
+SERVER = "192.168.2.14" # server computer ip address (!SHOULD BE REPLACED FOR OTHER SERVER COMPS!)
+ADDR = (SERVER, PORT) # makes the server and port information convenient for binding
+
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+client.connect(ADDR)
 
 
-def service_connection(key, mask):
-    sock = key.fileobj
-    data = key.data
-    if mask & selectors.EVENT_READ:
-        recv_data = sock.recv(1024)  # Should be ready to read
-        if recv_data:
-            print(f"Received {recv_data!r} from connection {data.connid}")
-            data.recv_total += len(recv_data)
-        if not recv_data or data.recv_total == data.msg_total:
-            print(f"Closing connection {data.connid}")
-            sel.unregister(sock)
-            sock.close()
-    if mask & selectors.EVENT_WRITE:
-        if not data.outb and data.messages:
-            data.outb = data.messages.pop(0)
-        if data.outb:
-            print(f"Sending {data.outb!r} to connection {data.connid}")
-            sent = sock.send(data.outb)  # Should be ready to write
-            data.outb = data.outb[sent:]
+def send(msg):
+    message = msg.encode(FORMAT) # encoding the msg to bytes
+    msg_length = len(message) # the length of the bytes
+    send_length = str(msg_length).encode(FORMAT) # turning the length from int -> str -> bytes
+    send_length += b' ' * (HEADER - len(send_length)) # adding blankspace after the sendlength to fullfill to HEADER bytes
 
+    client.send(send_length) # sends length in HEADER bytes
+    client.send(message) # sends message to server
 
-if len(sys.argv) != 4:
-    print(f"Usage: {sys.argv[0]} <host> <port> <num_connections>")
-    sys.exit(1)
-
-host, port, num_conns = sys.argv[1:4]
-start_connections(host, int(port), int(num_conns))
+    # print(client.recv(2048).decode(FORMAT))
+ 
+def printBoard(board):
+    print("""
+ {0} | {1} | {2} 
+-----------
+ {3} | {4} | {5} 
+-----------
+ {6} | {7} | {8}    
+""".format(*board))
 
 try:
-    while True:
-        events = sel.select(timeout=1)
-        if events:
-            for key, mask in events:
-                service_connection(key, mask)
-        # Check for a socket being monitored to continue.
-        if not sel.get_map():
-            break
+    time.sleep(3) #initialize connection
+    while True: 
+        servermsg = client.recv(2048).decode(FORMAT)
+        if servermsg and servermsg != "!WAIT":
+            if servermsg == "!TURN":
+                send(input("> "))
+            elif servermsg[:2] == "!B":
+                os.system("cls")
+                printBoard(servermsg[2:])
+            elif servermsg == "!NG":
+                input("Play again? Press Enter or CTRL+C\n> ")
+            elif servermsg != "!TURN":
+                print(servermsg)
 except KeyboardInterrupt:
-    print("Caught keyboard interrupt, exiting")
-finally:
-    sel.close()
+    send(DISCONNECT_MESSAGE)
+# !BX

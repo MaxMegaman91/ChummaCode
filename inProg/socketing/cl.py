@@ -1,4 +1,6 @@
 import socket
+import threading
+import time
 
 
 HEADER = 64 # first message from the client should be 64 bytes 
@@ -25,11 +27,15 @@ def send(msg):
 
     print(client.recv(2048).decode(FORMAT))
 
-send("Hello World! ")
-input()
-send("Hello everyone! ")
-input()
-send("Hey tim!")
-input()
-send(DISCONNECT_MESSAGE)
-input()
+
+def UI():
+    while True: send(input("> "))
+
+def BI():
+    while True: 
+        print(client.recv(2048).decode(FORMAT))
+        time.sleep(3)
+
+
+threading.Thread(target=UI).start()
+threading.Thread(target=BI).start()
