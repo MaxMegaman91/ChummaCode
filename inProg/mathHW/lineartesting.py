@@ -58,6 +58,7 @@ class Terms():
     def __mul__(self, newT):
         ansCoeff = str(self.coeff * newT.coeff)
         # variable multiplication) ansVars = something.something.something
+        ansVars = "SUPRESS_ERROR"
         ansT = Terms(ansCoeff + ansVars)
         return ansT
     

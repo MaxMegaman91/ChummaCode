@@ -18,6 +18,6 @@ class fraction():
     def __str__(self): # For stringify and print
         return str(self.raw)
 
-for qnum in range(qcount):
+for qnum in range(10):
     fromval = random.choice(["fraction", "decimal", "percent"])
     toval = random.choice(["fraction", "decimal", "percent"])

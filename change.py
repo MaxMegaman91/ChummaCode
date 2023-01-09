@@ -5,5 +5,5 @@ from PIL import Image
 
 fromtype = input("type from")
 totype = input("type to")
-flien
+
 
