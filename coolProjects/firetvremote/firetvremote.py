@@ -52,8 +52,10 @@ class fireStickController():
         print("Select command sent! ")
 
     def pressbutton(self,button):
+        import threading
         try:
-            self.device._service(b'shell',b'input keyevent' + self.buttonDict[button])
+            threading.Thread(target=lambda:self.device._service(b'shell',b'input keyevent' + self.buttonDict[button])).start()
+            
         except KeyError:
             print("Invalid key! ")
 
@@ -88,7 +90,8 @@ tk.Button(window,text="‣",command = lambda: apicopy.pressbutton("pause"),font=
 tk.Button(window,text="⇉",command = lambda: apicopy.pressbutton("forward"),font=("Arial",20)).grid(row=6,column=2)
 
 
-
-window.mainloop()
+try:
+    window.mainloop()
+except: print("")
 
 
