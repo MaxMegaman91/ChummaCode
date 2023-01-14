@@ -41,27 +41,44 @@ def getProblem():
     problem = RAWproblem
 
     # DOWN
-    P = randomComposite(0,100)/100
-    D = int(P*random.randint(0,20)*100)
-    N = (P)*D
+    x=0
+    N = D = n = d = P = 1
+    # """"""
+    while (N/D) != round(n/d,2) or x==0:
+        x=1
+
+        n = N = P = random.randint(0,100)
+        D = d = 100
+
+        temp = 0.0
+        while temp == 0.0: temp = round(random.random(), 1)
+
+        n *= temp
+        d *= temp
+        n = round(n,2)
+        d = round(d)
+
+    # """"""
+
+    # print(f"N = {N}, D = {D}, n = {n}, d = {d}, P = {P}")
     # UP
 
     C = names.get_first_name()
     
     problem = problem.replace("^P", str(P))
-    problem = problem.replace("^D", str(D))
-    problem = problem.replace("^N", str(N))
+    problem = problem.replace("^D", str(d))
+    problem = problem.replace("^N", str(n))
     problem = problem.replace("^C", str(C))
 
-    want = problem[-1]
+    want = problem[-2]
     problem = problem[:-3]
 
     if want == "P":
         return problem, P
     elif want == "D":
-        return problem, D
+        return problem, d
     elif want == "N":
-        return problem, N
+        return problem, n
     else:
         return "", ""
     
