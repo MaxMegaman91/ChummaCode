@@ -1,8 +1,9 @@
-x = "00"
+import random
+P = N = D = 0
+# """"""
 
-x = x.encode()
+P = random.randint(0,100)
 
-print(x)
+# """"""
 
-x = x.decode()
-print(x)
+print(f"N = {N}, D = {D}, P = {P}")
