@@ -22,7 +22,3 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.sendall(input().encode())
         data = s.recv(1024).decode()
         drawBoard(list(data))
-
-print(f"Received {data!r}")
-
-# except ConnectionResetError: sys.exit("Server DOWN! ")

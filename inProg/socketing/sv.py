@@ -67,4 +67,4 @@ def start():
 
 print("[STARTING] Server is starting...")
 try: start()
-except KeyboardInterrupt(): conn.close()
+except KeyboardInterrupt(): exit()
