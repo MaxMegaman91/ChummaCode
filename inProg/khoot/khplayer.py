@@ -28,14 +28,8 @@ def requestsManager(client):
         if request:
             if request == "%NAMEREQR":
                 msg = input("Nickname for reference? \n> ")
-            elif request == "%READYUP?":
-                if input("Enter to start game! \n> ") == "":
-                    msg = "&STRTGAME"
-            elif request[:9] == "%QUESTION":
-                question = msg[10:]
-                print(f"QUESTION: {question}")
-                time.sleep(30)
-                msg = ""
+            elif request == "%REQUESTS":
+                msg = input("Which is the answer 1-4? \n> ")
             sendMsg(client, msg)
     
 #=#
@@ -43,6 +37,6 @@ def requestsManager(client):
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(ADDR)
 
-client.send(("&HOSTJOIN").encode(FORMAT))
+client.send(("&PLAYJOIN").encode(FORMAT))
 
 requestsManager(client)
