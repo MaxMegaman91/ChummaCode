@@ -1,3 +1,0 @@
-^P of ^D? &N
-^C's class has ^D students. Sadly, it was a snowy day and some of her classmates couldn't make it. What is the attendance percent if only ^N people came to the school? &P
-^C can run ^N miles at a marathon. The marathon is ^P% of her limit. How long is the marathon? &D
