@@ -5,7 +5,7 @@ import socket, threading, time
 #=#
 # Constants
 HEADER = 64
-SERVER = "192.168.2.112"
+SERVER = "192.168.86.21"
 PORT = 14014
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
@@ -28,9 +28,15 @@ def requestsManager(client):
         if request:
             if request == "%NAMEREQR":
                 msg = input("Nickname for reference? \n> ")
-            elif request == "%REQUESTS":
+                sendMsg(client, msg)
+            elif request == "%ANSWRQST":
                 msg = input("Which is the answer 1-4? \n> ")
-            sendMsg(client, msg)
+                sendMsg(client, msg)
+            elif request[:9] == "%POINTCHK":
+                points = request[10:]
+                print(f"You have {points} points!")
+            else: msg = "%NULLVAL"
+            
     
 #=#
 # Init

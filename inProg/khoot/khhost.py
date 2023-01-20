@@ -5,7 +5,7 @@ import socket, threading, time
 #=#
 # Constants
 HEADER = 64
-SERVER = "192.168.2.112"
+SERVER = "192.168.86.21"
 PORT = 14014
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
@@ -29,10 +29,10 @@ def requestsManager(client):
             if request == "%NAMEREQR":
                 msg = input("Nickname for reference? \n> ")
             elif request == "%READYUP?":
-                if input("Enter to start game! \n> ") == "":
-                    msg = "&STRTGAME"
+                input("Enter to start game! \n> ")
+                msg = "&STRTGAME"
             elif request[:9] == "%QUESTION":
-                question = msg[10:]
+                question = request[10:]
                 print(f"QUESTION: {question}")
                 time.sleep(30)
                 msg = ""
