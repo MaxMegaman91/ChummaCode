@@ -3,6 +3,5 @@ def bytelen(s):
 ####################################
 
 #Do Not Delete bytelen
-
-while 0 == 0:
-    pass
+a, b = [10, 20]
+print(f"{b} is greater than {a}")

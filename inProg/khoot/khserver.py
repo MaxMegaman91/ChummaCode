@@ -1,10 +1,23 @@
 # khserver !
 #=#
 # Imports
-import socket, threading
-import time, random, os
+import socket, threading, json
+import time, random, os, sys, select, base64
 
+#=#
+# Constants
+HEADER = 64
+SERVER = "192.168.86.21" # VIRGIN379 on aarushmac
+PORT = 14014
+ADDR = (SERVER, PORT)
+FORMAT = 'utf-8'
+DISCONNECT_MESSAGE = "%DISCONNECT"
+host = None
+contactList = []
+gameState = "NotRunning"
 
+#=#
+# Methods and Classes
 
 
 class Connection():
@@ -98,7 +111,6 @@ def getMsgFrom(conn:Connection, requestMSG="%UNKREQST", post=True, DEBUG=True):
             
             return msg
             
-
     
 def getAnsFrom(conn:Connection, DEBUG = True):
     """Similar to getMsgFrom, using a connection object to communicate with a player to request the answer {%ANSWRQST}
@@ -119,7 +131,7 @@ def getAnsFrom(conn:Connection, DEBUG = True):
     sock.send(requestMSG.encode(FORMAT))
     t0 = time.perf_counter()
     
-    while time.perf_counter()-t0 <= 30:
+    while gameState == "asking":
         msg_length = sock.recv(HEADER).decode(FORMAT)
         
         if msg_length:
@@ -131,8 +143,7 @@ def getAnsFrom(conn:Connection, DEBUG = True):
             if not msg.isnumeric():
                 return getAnsFrom(conn)
             
-            msg = int(msg)
-            conn.answer = Answer(msg, t0-t1)
+            conn.answer = Answer(msg, time.perf_counter()-t0)
             
             if DEBUG:
                 print(f"[{name}] {msg}")
@@ -143,6 +154,7 @@ def getAnsFrom(conn:Connection, DEBUG = True):
                 del conn
             
             return
+
 
 def asHost(conn:Connection):
     """Inner function to execute certain methods to set up a host.
@@ -182,7 +194,6 @@ def asPlay(conn:Connection):
     while gameState:
         pass
     
-
     
 def establishConn(sock, addr):
     """On acceptance of connection to server, split hosts and players and set them up. 
@@ -194,6 +205,7 @@ def establishConn(sock, addr):
     Returns:
         None
     """
+    global host
     while True:
         fm = sock.recv(9).decode(FORMAT)
         # $ recv 9 because first message is either hostjoin or playjoin
@@ -201,7 +213,7 @@ def establishConn(sock, addr):
         if fm:
             if fm == "&HOSTJOIN":
                 conn = Connection(sock, addr, True)
-                hostList.append(conn)
+                host = conn
                 return asHost(conn)
             elif fm == "&PLAYJOIN":
                 conn = Connection(sock, addr)
@@ -210,6 +222,7 @@ def establishConn(sock, addr):
             else: 
                 sock.close()
 
+
 def answerEvaluate(conn:Connection, answer):
     """Evaluates answer submitted with correct answer. Uses time from Answer object to add speed bonus.
 
@@ -217,67 +230,58 @@ def answerEvaluate(conn:Connection, answer):
         conn (Connection): The connection object, must have a socket and addr for communication purposes
         answer (Integer): Correct answer option from 1-4
     """
-    if conn.answer.answer == answer: # answer as \n because last character of a line is newline :(
-        # use time algorithm/calculation
-        conn.points += 10
+    if type(conn.answer) == Answer:
+        if str(conn.answer.answer) == str(answer):
+            # use time algorithm/calculation
+            conn.points += 100
     conn.sock.send((f"%POINTCHK:{conn.points}").encode(FORMAT))
     conn.answer = 0 
     
 
-
 def gameManager():
     """Starts and manages a kahoot game."""
+    global gameState
+    
+    pointboard = {}
     
     with open(os.path.join(os.path.dirname(__file__), "questions.txt"), "r") as file: 
         lines = file.readlines()
+    # read all questions
     
-    line = random.choice(lines)
-    question, ans = line[:-2], line[-1]
+    random.shuffle(lines) #shuffle lines
     
-    for host in hostList:
-        try: 
-            host.sock.send((f"%QUESTION:{question}").encode(FORMAT))
-            print((f"[QUESTION] {question}"))
-        except: pass
-    
-    contactThreads = []
-    for contact in contactList:
-        contact.answer = 0
-        contactThreads.append(threading.Thread(target = lambda: getAnsFrom(contact)))
-        contactThreads[-1].start()
-    
-    time.sleep(30)
-    
-    # contact Threads stop all
-    
-    # send hosts the point data and leaderboard, as well as # of answered peple
-    
-    for contact in contactList:
-        answerEvaluate(contact, ans)
-    
-    
-    
+    for line in lines:
+        gameState = "asking"
+        question, ans = line[:-2], line[-2]
         
+        host.sock.send((f"%QUESTION:{question}").encode(FORMAT))
+        print((f"[QUESTION] {question}"))
+        
+        contactThreads = []
+        for contact in contactList:
+            contact.answer = 0
+            contactThreads.append(threading.Thread(target = lambda: getAnsFrom(contact)))
+            contactThreads[-1].start()
+        
+        while getMsgFrom(host, "%QSTNFNSH") != "&NEXTQSTN": continue
+        
+        gameState = "returning"
+        
+        
+        
+        for contact in contactList:
+            answerEvaluate(contact, ans)
+            pointboard[contact.name] = contact.points
+            
+        serialPoints = json.dumps( sorted(pointboard.items(), key=lambda x:x[1], reverse=True) )
+        _ = getMsgFrom(host, (f"%LDRBOARD:{serialPoints}"))
     
-    
-    
-    
-    #eval answers 
+    _ = getMsgFrom(host, ("%GAMEOVER"))
+        
     
 
     
     
-#=#
-# Constants
-HEADER = 64
-SERVER = "192.168.86.21" # VIRGIN379 on aarushmac
-PORT = 14014
-ADDR = (SERVER, PORT)
-FORMAT = 'utf-8'
-DISCONNECT_MESSAGE = "%DISCONNECT"
-hostList = []
-contactList = []
-gameState = "NotRunning"
 
 #=#
 # Init
@@ -296,7 +300,12 @@ try:
         
         threading.Thread(target=establishConn, args=(sock, addr)).start()
 
-except: exit()
+except: 
+    for conn in list(host)+contactList:
+        conn.sock.close()
+
+#=#
+# Notes
 """
 # &HOSTJOIN : sent from client to indicate that the connection is from the host,
     only sent once at start of connection
@@ -305,7 +314,11 @@ except: exit()
 # &STRTGAME : sent from host character to indicate the start of the game
 # %NAMEREQR : sent from server to assign nickname to computer
 # %READYUP? : sent from server to ask if the game can start
-# %QUESTION : sent from server to host only, to show question on host screen
+# %QUESTION : sent from server to host only, along with question for printing
 # %ANSWRQST : sent from server to players only, to ask them for their answer
 # %POINTCHK : sent from server to players, to give them a refresh of their score
+# %QSTNFNSH : sent from server to host to request skip button input
+# &NEXTQSTN : sent from host to server to go to next question
+# %LDRBOARD : sent from server to host, pickled leaderboard
+# %GAMEOVER : sent from server to host, notifies the game is over
 """
