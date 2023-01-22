@@ -1,6 +1,6 @@
 #=#
 # imports
-import socket, threading, time, sys, select, json
+import socket, threading, time, sys, select, json, os
 
 #=#
 # Constants
@@ -43,7 +43,10 @@ def requestsManager(client):
                 msg = "&STRTGAME"
             elif request[:9] == "%QUESTION":
                 question = request[10:]
+                question, *options = question.split("||")
+                os.system('clear' if os.name == 'posix' else 'cls')
                 print(f"QUESTION: {question}")
+                print(f"OPTIONS: \n1. {options[0]} \n2. {options[1]} \n3. {options[2]} \n4. {options[3]}")
                 print("\n")
                 continue
             elif request == "%QSTNFNSH":
@@ -51,6 +54,7 @@ def requestsManager(client):
                 msg = "&NEXTQSTN"
                 print("\n")
             elif request[:9] == "%LDRBOARD":
+                os.system('clear' if os.name == 'posix' else 'cls')
                 serialLeader = request[10:]
                 leaderboard = json.loads(serialLeader)
                 # [[aarush, 100]]

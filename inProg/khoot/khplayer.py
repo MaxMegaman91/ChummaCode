@@ -1,6 +1,6 @@
 #=#
 # imports
-import socket, threading, time
+import socket, threading, time, os
 
 #=#
 # Constants
@@ -30,6 +30,7 @@ def requestsManager(client):
                 msg = input("Nickname for reference? \n> ")
                 sendMsg(client, msg)
             elif request == "%ANSWRQST":
+                os.system('clear' if os.name == 'posix' else 'cls')
                 msg = input("Which is the answer 1-4? \n> ")
                 sendMsg(client, msg)
             elif request[:9] == "%POINTCHK":
