@@ -1,15 +1,18 @@
-# khserver !
-#=#
+# ------------------------       khserver.py       ------------------------
 # Imports
 import socket, threading, json
-import time, random, os, sys, select, base64
+import time, random, os, sys
 
-#=#
+###############################################################################
 # Constants
+if len(sys.argv) == 0:
+    SERVER = socket.gethostbyname(socket.gethostname())
+    PORT = 14014
+elif len(sys.argv) > 0:
+    SERVER = sys.argv[0]
+    PORT = sys.argv[1]
+
 HEADER = 64
-SERVER = "192.168.86.21" # VIRGIN379 on aarushmac
-try: PORT = int(sys.argv[1]) if sys.argv[1] else 14014
-except: PORT = 14014
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "%DISCONNECT"
@@ -17,7 +20,7 @@ host = None
 contactList = []
 gameState = "NotRunning"
 
-#=#
+###############################################################################
 # Methods and Classes
 
 
@@ -183,7 +186,7 @@ def readyState(post=True, DEBUG=True):
     
     while True:
         if len(contactList) > prevSent:
-            host.sock.send("%PLAYRCNT" + str(len(contactList)))
+            host.sock.send(("%PLAYRCNT" + str(len(contactList))).encode(FORMAT))
             prevSent = len(contactList)
         
         msg_length = sock.recv(HEADER).decode(FORMAT)
@@ -317,13 +320,9 @@ def gameManager():
                         contact.sock.send(("%RANKINGL:"+str(n+1)).encode(FORMAT))
             _ = getMsgFrom(host, ("%GAMEOVER"))
             
-    
 
-    
-    
-
-#=#
-# Init
+###############################################################################
+# Startup server and listen for incoming connections
 
 print("[Server] Server starting up!")
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -343,7 +342,7 @@ except:
     for conn in list(host)+contactList:
         conn.sock.close()
 
-#=#
+###############################################################################
 # Notes
 """
 # &HOSTJOIN : sent from client to indicate that the connection is from the host,

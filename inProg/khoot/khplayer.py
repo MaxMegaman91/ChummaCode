@@ -4,10 +4,16 @@ import socket, threading, sys
 from tkinter import *
 
 # ----- constants -----
+if len(sys.argv) == 0:
+    SERVER = "192.168.2.112"
+    PORT = 14014
+elif len(sys.argv) > 0:
+    SERVER = sys.argv[0]
+    PORT = sys.argv[1]
+
+del sys
+
 HEADER = 64
-SERVER = "192.168.86.21"
-try: PORT = int(sys.argv[1]) if sys.argv[1] else 14014
-except: PORT = 14014
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "%DISCONNECT"
@@ -50,7 +56,7 @@ class Page():
         """Shows the app page by gridding the widgets."""
         
         for widget, col, row, padx, pady in self.widgets: # unpack lists to widget col row padx pady
-            widget.grid(widget, col, row, padx, pady)
+            widget.grid(column=col, row=row, padx=padx, pady=pady)
             
         self.state="isShowing"
     
@@ -195,7 +201,7 @@ def requestsManager(client):
                     waitPage.widgets[0][0].config(
                         text = f"WRONG!", font=('Times New Roman',20,'bold')) # say wrong
                 
-                points = request[10:] # update points
+                points = int(request[10:]) # update points
                 waitPage.widgets[1][0].config(text = f"You have {points} points!") # update waitPage text
             
             elif request[:9] == "%RANKINGL": # ranking leaderboard for player
@@ -215,13 +221,13 @@ waitPage = Page([Label(app, text="Waiting for host to start the game! ",
 
 # askingPage with 4 buttons like khoot
 askingPage = Page([Button(app, text="1", bg="blue", fg="white", height=7, width=10, 
-                          command=lambda: answer(askingPage, "1")), 0, 0, 10, 10], 
+                          command=lambda: answer("1")), 0, 0, 10, 10], 
                   [Button(app, text="2", bg="red", fg="white", height=7, width=10, 
-                          command=lambda: answer(askingPage, "2")), 1, 0, 10, 10], 
+                          command=lambda: answer("2")), 1, 0, 10, 10], 
                   [Button(app, text="3", bg="yellow", fg="white", height=7, width=10, 
-                          command=lambda: answer(askingPage, "3")), 0, 1, 10, 10], 
+                          command=lambda: answer("3")), 0, 1, 10, 10], 
                   [Button(app, text="4", bg="green", fg="white", height=7, width=10, 
-                          command=lambda: answer(askingPage, "4")), 1, 1, 10, 10], 
+                          command=lambda: answer("4")), 1, 1, 10, 10], 
                   nextPage=waitPage)
 
 # setting the page after wait page to askingPage

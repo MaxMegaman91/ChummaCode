@@ -1,28 +1,37 @@
-#=#
-# imports
-import socket, threading, time, sys, select, json, os
-# Import the library tkinter
+# ------------------------       khhost.py       ------------------------
+# ----- imports -----
+import socket, threading, time, sys, json
 from tkinter import *
+# import os, select
 
+###############################################################################
+# CLI based IP and PORT 
+if len(sys.argv) == 0:
+    SERVER = "192.168.2.112"
+    PORT = 14014
+elif len(sys.argv) > 0:
+    SERVER = sys.argv[0]
+    PORT = sys.argv[1]
 
-#=#
+del sys
+
 # Constants
 HEADER = 64
-SERVER = "192.168.86.21"
-try: PORT = int(sys.argv[1]) if sys.argv[1] else 14014
-except: PORT = 14015
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "%DISCONNECT"
 
 # Create a GUI app
 app = Tk()
+
+# Variables that connect the thread to the app
 username = ""
 ready = False
 toQuestion = False
 nextQuestion = False
 
-
+###############################################################################
+# --------------          Classes and Methods          --------------
 # Class for collection of widgets
 class Page():
     def __init__(self, *args, nextPage=None):
@@ -95,7 +104,7 @@ def remove(input):
             remove(widget)
     return True
 
-    
+# Button press of name submission
 def login(loginPage:Page):
     global username, readyPage
     #login
@@ -104,19 +113,17 @@ def login(loginPage:Page):
     print(username)
     
     loginPage.goNextPage(readyPage)
-
+# button press to start game
 def startGame(readyPage:Page):
     global ready, questionPage
     ready = True
     
     readyPage.hide()
-
-def skipQuestion(questionPage:Page):
+# Button press to go to leaderboard
+def skipQuestion():
     global nextQuestion
     nextQuestion = True
-    
-    
-    
+# Button press to to next question
 def toNextQuestion(leaderboardPage:Page):
     global toQuestion
     
@@ -124,8 +131,9 @@ def toNextQuestion(leaderboardPage:Page):
     
     leaderboardPage.hide()
 
-
-def rawIn(prompt, timeout=30.0):
+"""
+#CLI question input with timeout
+def _rawIn(prompt, timeout=30.0):
     sys.stdout.write(prompt)
     sys.stdout.flush()
     ready, _, _ = select.select([sys.stdin], [],[], timeout)
@@ -135,7 +143,16 @@ def rawIn(prompt, timeout=30.0):
         print("\n")
     return "1"
 
+"""
+
+#Encode and send message to server
 def sendMsg(client, msg):
+    """Sends a message to the server with FORMAT encryption
+
+    Args:
+        client (socket): Socket to connect to the server and sent the information
+        msg (str): Message to send to the server
+    """
     message = msg.encode(FORMAT)
     msg_length = len(message)
     send_length = str(msg_length).encode(FORMAT)
@@ -144,7 +161,7 @@ def sendMsg(client, msg):
     client.send(send_length)
     client.send(message)
 
-
+# manages all requests as thread and uses global variables to communicate
 def requestsManager(client):
     global nextQuestion, username, ready, toQuestion, leaderboardPage
     
@@ -181,8 +198,9 @@ def requestsManager(client):
                 # print("\n")
                 
                 continue
+            
             elif request == "%QSTNFNSH":# questionPage wait for 30 seconds or buttonclick
-                # rawIn("Enter to next question \n> ")
+                # _rawIn("Enter to next question \n> ")
                 # print("\n")
                 
                 while (time.perf_counter()-t0 <= 30) and (nextQuestion == False): continue
@@ -213,6 +231,7 @@ def requestsManager(client):
                 toQuestion = False
                 
                 msg = "go"
+                
             elif request == "%GAMEOVER": #leaderboard page again
                 # os.system('clear' if os.name == 'posix' else 'cls')
                 # print("\n")
@@ -241,24 +260,15 @@ def requestsManager(client):
                 
             sendMsg(client, msg)
     
-"""
-LoginPage - :)
-readyPage - 
-questionPage - 
-leaderboardPage - 
-
-"""
-
-
-
-
+###############################################################################
+# -------------------      Web Design      -------------------
 leaderboardPage = Page([Label(app, text="LEADERBOARD"), 0, 0, 15, 20],
                        [Label(app, text="$1\n$2\n$3\n$4\n$5"), 0, 1, 10, 10],
                        [Button(app, text="Next Question!", command=lambda: toNextQuestion(leaderboardPage)), 0, 2, 10, 10])
 
 questionPage = Page([Label(app, text="QUESTION: $"), 0, 0, 15, 20],
                     [Label(app, text="OPTIONS: \n$\n$\n$\n$"), 0, 1, 10, 10],
-                    [Button(app, text="Skip Question", command= lambda: skipQuestion(questionPage)), 0, 2, 10, 10],
+                    [Button(app, text="Skip Question", command= lambda: skipQuestion()), 0, 2, 10, 10],
                     nextPage=leaderboardPage)
 
 leaderboardPage.nextPage = questionPage
@@ -273,9 +283,8 @@ loginPage = Page([Label(app, text="Username:"), 0, 0, 10, 10],
                          command=lambda: login(loginPage)), 0, 1, 10, 10],
                  nextPage=readyPage)
 
-
-#=#
-# Init
+###############################################################################
+# -------      Starting the socket connection and app!      -------
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(ADDR)
 
@@ -284,8 +293,5 @@ client.send(("&HOSTJOIN").encode(FORMAT))
 threading.Thread(target=lambda:requestsManager(client)).start()
 loginPage.show()
 app.mainloop()
-
-
-
-
-# Make infinite loop for displaying app on screen
+# nothing here, its noodles
+###############################################################################
