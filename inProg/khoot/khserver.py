@@ -8,7 +8,8 @@ import time, random, os, sys, select, base64
 # Constants
 HEADER = 64
 SERVER = "192.168.86.21" # VIRGIN379 on aarushmac
-PORT = 14014
+try: PORT = int(sys.argv[1]) if sys.argv[1] else 14014
+except: PORT = 14014
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "%DISCONNECT"
@@ -169,13 +170,40 @@ def asHost(conn:Connection):
     conn.name = getMsgFrom(conn, "%NAMEREQR")
     
     print(f"[RENAME] {conn.addr} renamed and hereby addressed as {conn.name}.")
+    gameManager()
+    
+
+def readyState(post=True, DEBUG=True):
+    global host
+    sock = host.sock
+    if host.name: name = host.name
+    else: name = host.addr
+    sock.send("%READYUP?".encode(FORMAT))
+    prevSent=0
     
     while True:
-        if getMsgFrom(conn,"%READYUP?") == "&STRTGAME":
-            global gameState
-            print("[HOST] Game starting! ")
-            gameState = "Running!"
-            gameManager()
+        if len(contactList) > prevSent:
+            host.sock.send("%PLAYRCNT" + str(len(contactList)))
+            prevSent = len(contactList)
+        
+        msg_length = sock.recv(HEADER).decode(FORMAT)
+        if msg_length:
+            msg_length = int(msg_length)
+            
+            msg = sock.recv(msg_length).decode(FORMAT)
+            
+            if post and msg != "": #indexerror if msg is 0 in length
+                if not msg[0] in "&%": print(f"[{name}] {msg}")
+            
+            elif DEBUG:
+                print(f"[{name}] {msg}")
+            
+            if msg == DISCONNECT_MESSAGE:
+                print(f"[Disconnection] {addr} is disconnecting! ")
+                sock.close()
+                del conn
+            
+            return True if msg == "&STRTGAME" else False
         
         
 def asPlay(conn:Connection):
@@ -241,43 +269,54 @@ def answerEvaluate(conn:Connection, answer):
 def gameManager():
     """Starts and manages a kahoot game."""
     global gameState
-    
-    pointboard = {}
-    
-    with open(os.path.join(os.path.dirname(__file__), "questions.txt"), "r") as file: 
-        lines = file.readlines()
-    # read all questions
-    
-    random.shuffle(lines) #shuffle lines
-    
-    for line in lines:
-        gameState = "asking"
-        question, ans = line[:-2], line[-2]
-        
-        host.sock.send((f"%QUESTION:{question}").encode(FORMAT))
-        print((f"[QUESTION] {question}"))
-        
-        contactThreads = []
-        for contact in contactList:
-            contact.answer = 0
-            contactThreads.append(threading.Thread(target = lambda: getAnsFrom(contact)))
-            contactThreads[-1].start()
-        
-        while getMsgFrom(host, "%QSTNFNSH") != "&NEXTQSTN": continue
-        
-        gameState = "returning"
-        
-        
-        
-        for contact in contactList:
-            answerEvaluate(contact, ans)
-            pointboard[contact.name] = contact.points
+    while True:
+        if readyState():
             
-        serialPoints = json.dumps( sorted(pointboard.items(), key=lambda x:x[1], reverse=True) )
-        _ = getMsgFrom(host, (f"%LDRBOARD:{serialPoints}"))
-    
-    _ = getMsgFrom(host, ("%GAMEOVER"))
-        
+            print("[HOST] Game starting! ")
+            gameState = "Running!"
+            
+            pointboard = {}
+
+            with open(os.path.join(os.path.dirname(__file__), "questions.txt"), "r") as file: 
+                lines = file.readlines()
+            # read all questions
+
+            random.shuffle(lines) #shuffle lines
+
+            for line in lines:
+                gameState = "asking"
+                question, ans = line[:-2], line[-2]
+                
+                host.sock.send((f"%QUESTION:{question}").encode(FORMAT))
+                print((f"[QUESTION] {question}"))
+                
+                contactThreads = []
+                for contact in contactList:
+                    contact.answer = 0
+                    contactThreads.append(threading.Thread(target = lambda: getAnsFrom(contact)))
+                    contactThreads[-1].start()
+                
+                while getMsgFrom(host, "%QSTNFNSH") != "&NEXTQSTN": continue
+                
+                gameState = "returning"
+                
+                
+                
+                for contact in contactList:
+                    answerEvaluate(contact, ans)
+                    pointboard[contact.name] = contact.points
+                    
+                serialPoints = json.dumps( sorted(pointboard.items(), key=lambda x:x[1], reverse=True) )
+                _ = getMsgFrom(host, (f"%LDRBOARD:{serialPoints}"))
+                
+
+            pointboard = sorted(pointboard.items(), key=lambda x:x[1], reverse=True)
+            for n in range(len(pointboard)):
+                for contact in contactList:
+                    if pointboard[n][0] == contact.name:
+                        contact.sock.send(("%RANKINGL:"+str(n+1)).encode(FORMAT))
+            _ = getMsgFrom(host, ("%GAMEOVER"))
+            
     
 
     
@@ -321,4 +360,5 @@ except:
 # &NEXTQSTN : sent from host to server to go to next question
 # %LDRBOARD : sent from server to host, pickled leaderboard
 # %GAMEOVER : sent from server to host, notifies the game is over
+# %RANKINGL : sent from server to player, notifies their rank in the game
 """

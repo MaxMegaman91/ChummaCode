@@ -3,5 +3,9 @@ def bytelen(s):
 ####################################
 
 #Do Not Delete bytelen
-a, b = [10, 20]
-print(f"{b} is greater than {a}")
+import tkinter
+from tkinter import font
+
+root = tkinter.Tk()  # Start Tk instance
+your_font = font.nametofont("TkDefaultFont")  # Get default font value into Font object
+print(your_font.actual())
