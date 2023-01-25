@@ -1,16 +1,15 @@
 # ------------------------       khserver.py       ------------------------
-# Imports
+# ----- imports -----
 import socket, threading, json
 import time, random, os, sys
 
 ###############################################################################
-# Constants
-if len(sys.argv) == 0:
-    SERVER = socket.gethostbyname(socket.gethostname())
+# ----- constants -----
+if len(sys.argv) <= 1:
+    SERVER = "192.168.2.120"
     PORT = 14014
-elif len(sys.argv) > 0:
-    SERVER = sys.argv[0]
-    PORT = sys.argv[1]
+elif len(sys.argv) > 1:
+    SERVER, PORT = sys.argv
 
 HEADER = 64
 ADDR = (SERVER, PORT)
@@ -21,7 +20,7 @@ contactList = []
 gameState = "NotRunning"
 
 ###############################################################################
-# Methods and Classes
+# ---------- methods and classes ----------
 
 
 class Connection():
@@ -322,7 +321,7 @@ def gameManager():
             
 
 ###############################################################################
-# Startup server and listen for incoming connections
+# ---------- startup server and listen for incoming connections ----------
 
 print("[Server] Server starting up!")
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -343,7 +342,7 @@ except:
         conn.sock.close()
 
 ###############################################################################
-# Notes
+# ------- notes -------
 """
 # &HOSTJOIN : sent from client to indicate that the connection is from the host,
     only sent once at start of connection

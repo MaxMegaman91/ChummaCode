@@ -4,12 +4,11 @@ import socket, threading, sys
 from tkinter import *
 
 # ----- constants -----
-if len(sys.argv) == 0:
-    SERVER = "192.168.2.112"
+if len(sys.argv) <= 1:
+    SERVER = "192.168.2.120"
     PORT = 14014
-elif len(sys.argv) > 0:
-    SERVER = sys.argv[0]
-    PORT = sys.argv[1]
+elif len(sys.argv) > 1:
+    SERVER, PORT = sys.argv
 
 del sys
 
@@ -17,11 +16,10 @@ HEADER = 64
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "%DISCONNECT"
-FONTS = {
-    "heading": ('Times New Roman',20,'bold'),
-    "option" : ("Courier", 30, "italics"),
-    "regular": ('DejaVu Sans', 10, 'normal')
-}
+FONTS = {"title":("DejaVu Sans", 24, "bold"), 
+         "heading":("Droid Sans Fallback", 16), 
+         "text":("Droid Sans Fallback", 12),
+         "button":("Loma", 12)}
 
 # Game data
 name = ""
@@ -216,27 +214,27 @@ def requestsManager(client):
             
 # waitPage with 2 labels, one for correct, and one for points
 waitPage = Page([Label(app, text="Waiting for host to start the game! ", 
-                       font=FONTS["regular"]), 0, 0, 25, 25], 
-                [Label(app, text=""), 0, 1, 25, 25])
+                       font=FONTS["heading"]), 0, 0, 25, 25], 
+                [Label(app, text="", font=FONTS["text"]), 0, 1, 25, 25])
 
 # askingPage with 4 buttons like khoot
-askingPage = Page([Button(app, text="1", bg="blue", fg="white", height=7, width=10, 
-                          command=lambda: answer("1")), 0, 0, 10, 10], 
-                  [Button(app, text="2", bg="red", fg="white", height=7, width=10, 
-                          command=lambda: answer("2")), 1, 0, 10, 10], 
-                  [Button(app, text="3", bg="yellow", fg="white", height=7, width=10, 
-                          command=lambda: answer("3")), 0, 1, 10, 10], 
-                  [Button(app, text="4", bg="green", fg="white", height=7, width=10, 
-                          command=lambda: answer("4")), 1, 1, 10, 10], 
+askingPage = Page([Button(app, text="1", bg="blue", fg="black", height=7, width=10, 
+                          command=lambda: answer("1"), font=FONTS["button"]), 0, 0, 10, 10], 
+                  [Button(app, text="2", bg="red", fg="black", height=7, width=10, 
+                          command=lambda: answer("2"), font=FONTS["button"]), 1, 0, 10, 10], 
+                  [Button(app, text="3", bg="yellow", fg="black", height=7, width=10, 
+                          command=lambda: answer("3"), font=FONTS["button"]), 0, 1, 10, 10], 
+                  [Button(app, text="4", bg="green", fg="black", height=7, width=10, 
+                          command=lambda: answer("4"), font=FONTS["button"]), 1, 1, 10, 10], 
                   nextPage=waitPage)
 
 # setting the page after wait page to askingPage
 waitPage.nextPage = askingPage
 
 # loginPage with a label, entry, and button, to submit username
-loginPage = Page([Label(app, text="Username:"), 0, 0, 10, 10], 
+loginPage = Page([Label(app, text="Username:", font=FONTS["heading"]), 0, 0, 10, 10], 
                  [Entry(app, bd=2), 1, 0, 10, 10], 
-                 [Button(app, text="Submit", 
+                 [Button(app, text="Submit", font=FONTS["button"], 
                          command=lambda: login(loginPage)), 0, 1, 10, 10],
                  nextPage=waitPage)
 

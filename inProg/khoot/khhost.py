@@ -6,12 +6,11 @@ from tkinter import *
 
 ###############################################################################
 # CLI based IP and PORT 
-if len(sys.argv) == 0:
-    SERVER = "192.168.2.112"
+if len(sys.argv) <= 1:
+    SERVER = "192.168.2.120"
     PORT = 14014
-elif len(sys.argv) > 0:
-    SERVER = sys.argv[0]
-    PORT = sys.argv[1]
+elif len(sys.argv) > 1:
+    SERVER, PORT = sys.argv
 
 del sys
 
@@ -20,6 +19,10 @@ HEADER = 64
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = "%DISCONNECT"
+FONTS = {"title":("DejaVu Sans", 24, "bold"), 
+         "heading":("Droid Sans Fallback", 16), 
+         "text":("Droid Sans Fallback", 12),
+         "button":("Loma", 12)}
 
 # Create a GUI app
 app = Tk()
@@ -177,7 +180,13 @@ def requestsManager(client):
             elif request == "%READYUP?": # readyPage wait for buttonClick
                 #input("Enter to start game! \n> ")
                 
-                while ready == False: continue
+                while ready == False:
+                    request = client.recv(2048).decode(FORMAT)
+                    if request:
+                        if request[:9] == "%PLAYRCNT":
+                            playercount = request[9:]
+                            
+                            readyPage.widgets[0][0].config(text=f"{playercount} players joined")
                 ready=False
                 msg = "&STRTGAME"
                 
@@ -262,24 +271,25 @@ def requestsManager(client):
     
 ###############################################################################
 # -------------------      Web Design      -------------------
-leaderboardPage = Page([Label(app, text="LEADERBOARD"), 0, 0, 15, 20],
-                       [Label(app, text="$1\n$2\n$3\n$4\n$5"), 0, 1, 10, 10],
-                       [Button(app, text="Next Question!", command=lambda: toNextQuestion(leaderboardPage)), 0, 2, 10, 10])
+leaderboardPage = Page([Label(app, text="LEADERBOARD", font=FONTS["title"]), 0, 0, 15, 20],
+                       [Label(app, text="$1\n$2\n$3\n$4\n$5", font=FONTS["text"]), 0, 1, 10, 10],
+                       [Button(app, text="Next Question!", command=lambda: toNextQuestion(leaderboardPage), 
+                               font=FONTS["button"]), 0, 2, 10, 10])
 
-questionPage = Page([Label(app, text="QUESTION: $"), 0, 0, 15, 20],
-                    [Label(app, text="OPTIONS: \n$\n$\n$\n$"), 0, 1, 10, 10],
-                    [Button(app, text="Skip Question", command= lambda: skipQuestion()), 0, 2, 10, 10],
+questionPage = Page([Label(app, text="QUESTION: $", font=FONTS["heading"]), 0, 0, 15, 20],
+                    [Label(app, text="OPTIONS: \n$\n$\n$\n$", font=FONTS["text"]), 0, 1, 10, 10],
+                    [Button(app, text="Skip Question", font=FONTS["button"], command= lambda: skipQuestion()), 0, 2, 10, 10],
                     nextPage=leaderboardPage)
 
 leaderboardPage.nextPage = questionPage
 
-readyPage = Page([Label(app, text="0 players joined!"), 0, 0, 10, 15],
-                 [Button(app, text="Start Game!", command=lambda :startGame(readyPage)), 0, 1, 10, 10], nextPage = questionPage)
+readyPage = Page([Label(app, text="0 players joined!", font=FONTS["heading"]), 0, 0, 10, 15],
+                 [Button(app, text="Start Game!", font=FONTS["button"], command=lambda :startGame(readyPage)), 0, 1, 10, 10], nextPage = questionPage)
 
 # loginPage with a label, entry, and button, to submit username
-loginPage = Page([Label(app, text="Username:"), 0, 0, 10, 10], 
+loginPage = Page([Label(app, text="Username:", font=FONTS["title"]), 0, 0, 10, 10], 
                  [Entry(app, bd=2), 1, 0, 10, 10], 
-                 [Button(app, text="Submit", 
+                 [Button(app, text="Submit", font=FONTS["button"], 
                          command=lambda: login(loginPage)), 0, 1, 10, 10],
                  nextPage=readyPage)
 
