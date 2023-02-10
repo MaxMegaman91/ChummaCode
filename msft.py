@@ -1,10 +1,33 @@
 import random, time
 import pyautogui as gui
+import requests
+from bs4 import BeautifulSoup
+
+topicList = []
+
+get = requests.get("https://twitter-trends.iamrohit.in/canada")
+# print(get.text)
+soup = BeautifulSoup(get.text, 'html.parser')
+for topic in soup.find_all('a', class_='tweet', target='_blank'):
+    topicList.append(topic.get_text())
+print(topicList)
+
 
 gui.FAILSAFE = True
 x = 0
-while x < 100:
-    topic = random.choice([
+while x < 31:
+    topic = random.choice(topicList)
+    topicList.remove(topic)
+    gui.click(277, 174, clicks=3, interval=0.1)
+    time.sleep(0.5)
+    gui.typewrite(topic)
+    gui.press('enter')
+    time.sleep(5)
+    x+= 1
+
+
+"""
+[
         "how to play subway surfers", 
         "how to do microsoft rewards",
         "how to search on bing",
@@ -39,17 +62,4 @@ while x < 100:
         "what should i make for food",
         "where is google ceo now",
         "why is everyone being laid"
-    ])
-    
-    gui.click(277, 174, clicks=3, interval=0.1)
-    """time.sleep(0.5)
-    gui.keyDown('ctrl')
-    gui.keyDown('a')
-    gui.keyUp('a')
-    gui.keyUp('ctrl')"""
-    time.sleep(0.5)
-    gui.typewrite(topic)
-    gui.press('enter')
-    time.sleep(5)
-    x+= 1
-    
+    ]"""   
