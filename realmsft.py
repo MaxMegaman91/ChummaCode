@@ -41,7 +41,7 @@ def dailySet():
     gui.press('enter')
     
     time.sleep(2)
-    gui.typewrite("https://rewards.bing.com/")
+    gui.typewrite("https://rewards.bing.com/     ")
     gui.press('enter')
     
     time.sleep(2)
@@ -69,6 +69,8 @@ def dailySet():
     gui.keyUp("ctrl")
 
 def searchNewsMobile():
+    time.sleep(2)
+    
     gui.keyDown('ctrl')
     gui.press('w')
     time.sleep(1)
@@ -83,13 +85,14 @@ def searchNewsMobile():
     
     gui.press('f12')
     
-    time.sleep(0.5)
+    time.sleep(2)
     gui.keyDown('ctrl')
+    time.sleep(0.5)
     gui.press('r')
     gui.keyUp('ctrl')
-    time.sleep(1)
+    time.sleep(2)
     
-    for x in range(21):
+    for x in range(22):
         gui.click(632, 537)
         time.sleep(2)
         
