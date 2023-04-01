@@ -7,9 +7,9 @@ def gettext(url):
     jsontext = json.loads(soup.text)
     return jsontext
 
-def playerInfo(playerID, saveFile=True):
+def playerInfo(playerID, savePath="C:/Users/aarus/fetch/", saveFile=True):
     try:
-        with open("/home/aarush/cricorehard/playerData/"+str(playerID)+".json" if saveFile==True else str(saveFile), "a") as f:
+        with open(savePath+str(playerID)+".json" if saveFile==True else str(saveFile), "a") as f:
             f.write("{")
             
             for activity in ["BATTING", "BOWLING", "FIELDING"]:
@@ -23,22 +23,21 @@ def playerInfo(playerID, saveFile=True):
     except:
         return
     
-def matchInfo(matchID, justBalls=True, saveFile=True):
+def matchInfo(matchID, savePath="C:/Users/aarus/fetch/", saveFile=True):
     try:
-        with open("/home/aarush/cricorehard/matchData/"+str(matchID)+".json" if saveFile==True else str(saveFile)+".json", "a") as file:
+        with open(savePath+str(matchID)+".json" if saveFile==True else str(saveFile)+".json", "a") as file:
             file.write("{")
 
-            if justBalls:
-                jsontext = gettext("https://hs-consumer-api.espncricinfo.com/v1/pages/match/overs/details?lang=en&seriesId=1298134&mode=ALL&matchId="+str(matchID))
-                for inning in jsontext["inningOvers"]:
-                    file.write("\"inning" + str(inning["inningNumber"]) + "\" : {")
-                    for over in inning["stats"]:
-                        for ball in over["balls"]:
-                            file.write("\"ball" + str(ball["oversUnique"]) + "\": ")
-                            json.dump(ball, file)
-                            file.write("" if over["balls"][-1]==ball and inning["stats"][-1] == over else ",")
-                    
-                    file.write("}," if inning["inningNumber"]==1 else "}")
+            jsontext = gettext("https://hs-consumer-api.espncricinfo.com/v1/pages/match/overs/details?lang=en&seriesId=1298134&mode=ALL&matchId="+str(matchID))
+            for inning in jsontext["inningOvers"]:
+                file.write("\"inning" + str(inning["inningNumber"]) + "\" : {")
+                for over in inning["stats"]:
+                    for ball in over["balls"]:
+                        file.write("\"ball" + str(ball["oversUnique"]) + "\": ")
+                        json.dump(ball, file)
+                        file.write("" if over["balls"][-1]==ball and inning["stats"][-1] == over else ",")
+                
+                file.write("}," if inning["inningNumber"]==1 else "}")
             file.write("}")
     except KeyError:
         print("Something wrong with matchID json data! ")
@@ -76,4 +75,4 @@ def jsonToXML(jsonFilePath, onDebug=False, deleteJSON=False):
         os.remove(jsonFilePath)
     
 
-jsonToXML("/home/aarush/ChummaCode/getcloth.json")
+# jsonToXML("/home/aarush/ChummaCode/getcloth.json")

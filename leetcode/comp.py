@@ -4,7 +4,7 @@ start = timeit.default_timer()
 
 #####################################################
 
-def myFunc(celsius):
+def myFunc(inputs):
     
     return
 
