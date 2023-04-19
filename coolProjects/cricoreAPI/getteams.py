@@ -26,10 +26,20 @@ def getTeamInfo(teamName):
         
     jsond = json.dumps({'teamname':teamName, 'players':players})
     
-    with open('data.json', "w") as file:
+    with open(f'{hyphenedTeam}.json', "w") as file:
         file.write(jsond)
     
 getTeamInfo("chennai super kings")
+getTeamInfo("delhi capitals")
+getTeamInfo("gujarat titans")
+getTeamInfo("Kolkata Knight Riders")
+getTeamInfo("Lucknow super giants")
+getTeamInfo("mumbai indians")
+getTeamInfo("punjab kings")
+getTeamInfo("rajasthan royals")
+getTeamInfo("royal challengers bangalore")
+getTeamInfo("sunrisers hyderabad")
+
 
 
 
