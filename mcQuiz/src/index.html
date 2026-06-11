@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kahoot Style Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Upload Screen -->
+    <div class="upload-screen" id="upload-screen">
+        <div class="upload-container">
+            <h1>Kahoot Style Quiz</h1>
+            <p>Upload your CSV file to start the game!</p>
+            <label for="csv-upload" class="upload-btn">Choose CSV File</label>
+            <input type="file" id="csv-upload" accept=".csv" style="display: none;">
+            <p class="format-info">Format: Scenario, Question, Choice a, Choice b, Choice c, Choice d</p>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div class="container" id="game-screen" style="display: none;">
+        <div class="top-half" id="top-half">
+            <div class="timer" id="timer">30</div>
+            <div class="question-container">
+                <p class="scenario" id="scenario"></p>
+                <p class="question" id="question"></p>
+            </div>
+            <button class="next-btn" id="next-btn">Next Question</button>
+        </div>
+        <div class="bottom-half" id="bottom-half">
+            <div class="answer-box red" data-index="0">
+                <div class="symbol">△</div>
+                <p class="answer-text"></p>
+            </div>
+            <div class="answer-box blue" data-index="1">
+                <div class="symbol">◇</div>
+                <p class="answer-text"></p>
+            </div>
+            <div class="answer-box yellow" data-index="2">
+                <div class="symbol">○</div>
+                <p class="answer-text"></p>
+            </div>
+            <div class="answer-box green" data-index="3">
+                <div class="symbol">□</div>
+                <p class="answer-text"></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,4 +1,7 @@
-print("hello world")
+import pyautogui as pg
+import time
 
-name = input()
-print(name)
+while True:
+    time.sleep(3)
+    pg.typewrite("/fish ")
+    pg.press("enter")
